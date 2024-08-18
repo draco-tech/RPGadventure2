@@ -1,20 +1,24 @@
 import {  createContext, useContext, useEffect, useState } from "react";
 import Player from "../componentes/MainGame/js/Class";
 import Background from "../componentes/MainGame/js/background";
+import mundo0 from "../js/colictions/colictions.json";
 
 
 const GameContext = createContext({})
+// "/img/map0.bmp" 3840 × 1920
 
+const player = new Player({ position:{x:32,y:32}})
 
-const player = new Player({ position:{x:200,y:240}})
-
-const mundo = new Background({position:{x:0,y:0}})
+const mundo = new Background({position:{x:0,y:0},image:"/img/map0.bmp", imageWidth:3840, imageHeight:1920 ,resourse:mundo0} )
 export const GameContextProvider = ({children})=>{
- const [isDev, setIsDev] = useState(false)
+ const [isDev, setIsDev] = useState(true)
  
  useEffect(()=>{
   player.isDev = isDev
-  console.log('player',player);
+
+
+  player.speed =  isDev ? 5 : 2
+
   
  },[isDev])
 

@@ -6,12 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mi app</title>
   </head>
-  <body style="background-color: black;">
+  <body >
     <div id="zone_joystick" >
    
   </div>
     <div id="root"></div>
 
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      document.addEventListener("touchMove", (e) => {
+        e.preventDefault()
+      })
+    </script>
   </body>
+
 </html>

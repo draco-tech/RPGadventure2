@@ -42,7 +42,8 @@ const MyMenu = ()=>{
   return(
     <div
     onClick={()=>{setSwicht(!swicht), setIsDev(state => !state) }}
-    style={{width:50,height:50 , backgroundColor:"red"}}>
+    className='menu-dev'
+    >
      {swicht ? 'lindo menu':"menu feo"}
     </div>
   )

@@ -1,17 +1,22 @@
-//3840 × 1920
+
 
 
 class Background{
-  constructor({position}){
+  constructor({position,image, imageWidth, imageHeight,resourse}){
     this.position = position
     this.image = new Image()
-    this.w = 3840
-    this.h = 1920
-    this.image.src = "/img/map0.bmp"
+    this.scale = 1
+    this.w = imageWidth * this.scale
+    this.h = imageHeight * this.scale
+    this.resourse = resourse
+    this.image.src = image
+    console.log('resourse',resourse);
+    
     
   }
   update(c){
     this.draw(c)
+    
   }
   draw(c){
   

@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import nipplejs from 'nipplejs';
+import useGameContext from "../../../provider/context";
 
 const Joystick = ({player}) => {
- 
+ const { isDev } = useGameContext();
   
   const joystickRef = useRef(null);
 
@@ -13,6 +14,7 @@ const Joystick = ({player}) => {
    
     
     if (joystickRef.current ) {
+      let lastDercion = ''
       const manager = nipplejs.create({
         zone: joystickRef.current,
         mode: 'dynamic',
@@ -22,7 +24,7 @@ const Joystick = ({player}) => {
       // Manejar eventos del joystick
       manager.on('move', (evt, data) => {
         const { angle } = data;
-
+        
         if (angle) {
           
           
@@ -31,19 +33,31 @@ const Joystick = ({player}) => {
             x:0,
             y:0
           }
+          
           player.keyPress = true
 
           if (direction >= 45 && direction < 135) {
-            player.velocity.y = -player.speed;
+            //* Dirección hacia arriba
+            
+            lastDercion = "top"
+            player.currentState.handleKeyDown({key:"ArrowUp"});
           } else if (direction >= 135 && direction < 225) {
-            
-            player.velocity.x = -player.speed;
+            //* Dirección hacia la izquierda
+            lastDercion = "left"  
+            player.currentState.handleKeyDown({key:"ArrowLeft"});
+           
           } else if (direction >= 225 && direction < 315) {
+            //* Dirección hacia abajo
+            lastDercion = "down"
+            player.currentState.handleKeyDown({key:"ArrowDown"});
           
-            player.velocity.y = player.speed;
+          
           } else {
-            
+            lastDercion = "right"
             player.velocity.x = player.speed;
+            //* Dirección hacia la derecha
+           
+            player.currentState.handleKeyDown({key:"ArrowRight"});
           }
           
         }
@@ -55,6 +69,22 @@ const Joystick = ({player}) => {
           y:0
         }
         player.keyPress = false
+        console.log('lastDercion',lastDercion);
+        
+        switch (lastDercion) {
+          case "top":
+            player.currentState.handleKeyUp({key:"ArrowUp"});
+            break;
+          case "left":
+            player.currentState.handleKeyUp({key:"ArrowLeft"});
+            break;
+          case "down":
+            player.currentState.handleKeyUp({key:"ArrowDown"});
+            break;
+          case "right":
+            player.currentState.handleKeyUp({key:"ArrowRight"});
+            break;
+        }
       });
 
       // Cleanup cuando el componente se desmonte
@@ -62,9 +92,9 @@ const Joystick = ({player}) => {
         manager.destroy();
       };
     }
-  }, []);
+  }, [isDev]);
 
-  return <div ref={joystickRef} style={{ width: '200px', height: '200px', border: '1px solid black',position:"absolute" ,bottom:'1px',right:"0px",backgroundColor:"#f0f00020"}} />;
+  return <div ref={joystickRef} className={`joystick-area  ${isDev ? 'joystick-area-dev' : ''} `} />;
 };
 
 export default Joystick; 

@@ -1,20 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import Player from "./js/Class";
 import Background from "./js/background";
+import img from "..\/..\/..\/..\/..\/tiledmap\/TX Tileset Grass.png"      //"../../../../../tiledmap/TX Plant.png";
 
 import useGameContext from "../../provider/context";
 import Joystick from "./componentes/Joystick";
+import { mundo0 } from "./js/colictionInfo";
+import { createObjectsFrom2D, parse2D } from "./js/utils";
 
-// const canvas = document.getElementById("canvas")
 
-// let c = ""
-// if (canvas)  c = canvas.getContext('2d')
+let parsedCollisions = []
+let collisionBlocks = []
 
-// const mundo = new Background({position:{x:0,y:0}})
-//     const player = new Player({ position:{x:440,y:240}})
+
+
 const GameView = () => {
   const { mundo, player, isDev } = useGameContext();
   const [refreshWindos ,setRefreshWindos] = useState(false)
+  const [orientation, setOrientation] = useState(window.screen.orientation.type);
 
   const canvasRef = useRef(null);
   const requestIdRef = useRef(null);
@@ -22,10 +25,9 @@ const GameView = () => {
 
 
   function resizeCanvas() {
+    setOrientation(window.screen.orientation.type);
     setRefreshWindos(!refreshWindos)
     
-    console.log('window.innerWidth',window.screen.width);
-
   }
 
   // Ajustar el tamaño del canvas al cargar la página
@@ -34,19 +36,26 @@ const GameView = () => {
   // Ajustar el tamaño del canvas al redimensionar la ventana
   window.addEventListener('resize', resizeCanvas);
 
+    // Agregar el listener para detectar cambios de orientación
+    window.addEventListener('orientationchange', resizeCanvas);
 
-
-
+    
 
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const c = canvas.getContext("2d");
-    // canvas.width = 400;
-    // canvas.height = 680;
+    parsedCollisions = parse2D(mundo0)
+    collisionBlocks = createObjectsFrom2D(parsedCollisions)
+      
+      player.collisionBlocks = collisionBlocks
+      player.mundo = mundo
+    
+    
+    canvas.width =  window.outerWidth - 30;
+    canvas.height =  window.outerHeight - 50;
 
-    canvas.width = window.screen.width - 30;
-    canvas.height = window.screen.height - 100;
+  
 
     if (!canvas || !c) return;
 
@@ -56,18 +65,37 @@ const GameView = () => {
 
       c.fillStyle = "black";
       c.fillRect(0, 0, canvas.width, canvas.height);
+     
+      
+     
+       c.save()
+        // c.scale(2, 2)
+     
+       c.translate(player.camera.moveX, player.camera.moveY)
+      //  c.translate(camera.position.x, camera.position.y)
+       mundo.update(c);
+      
+      
+      if (isDev) {
+      collisionBlocks.forEach((collisionBlock) => {
+        collisionBlock?.update(c);
+      });
+     
+    }
 
-      mundo.update(c);
-      player.update(c, deltaTime);
-      player.updateCamera(c, mundo);
+    player.update({c, deltaTime,mapa:mundo,canvas});
+       c.restore()
 
-      requestIdRef.current = window.requestAnimationFrame(animate);
+       requestIdRef.current = window.requestAnimationFrame(animate);
+
+      
+
     };
 
     lastTimeRef.current = performance.now();
     requestIdRef.current = window.requestAnimationFrame(animate);
 
-    // Limpiar el requestAnimationFrame en el desmontaje del componente
+    
 
 
 
@@ -78,14 +106,19 @@ const GameView = () => {
 
 
     return () => {
+      // Ajustar el tamaño del canvas al redimensionar la ventana
+  window.addEventListener('resize', resizeCanvas);
       if (requestIdRef.current) {
         window.cancelAnimationFrame(requestIdRef.current);
       }
     };
-  }, [isDev,refreshWindos]); // Dependencia opcional; ajusta según tus necesidades
+  }, [isDev,refreshWindos,orientation]); // Dependencia opcional; ajusta según tus necesidades
 
   return (
     <section style={{ position: "relative" }}>
+
+     
+      <img src={img} alt="dd" />
       <canvas ref={canvasRef} className="card-container" id="canvas" />
       <Joystick {...{ player }} />
     </section>
