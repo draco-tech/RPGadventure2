@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Player from "./js/Class";
 import Background from "./js/background";
-import img from "..\/..\/..\/..\/..\/tiledmap\/TX Tileset Grass.png"      //"../../../../../tiledmap/TX Plant.png";
+import img from "/tailmap/Wall.png"      //"../../../../../tiledmap/TX Plant.png";
 
 import useGameContext from "../../provider/context";
 import Joystick from "./componentes/Joystick";
@@ -45,10 +45,10 @@ const GameView = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const c = canvas.getContext("2d");
-    parsedCollisions = parse2D(mundo0)
-    collisionBlocks = createObjectsFrom2D(parsedCollisions)
+    // parsedCollisions = parse2D(mundo0)
+    // collisionBlocks = createObjectsFrom2D(parsedCollisions)
       
-      player.collisionBlocks = collisionBlocks
+      
       player.mundo = mundo
     
     
@@ -73,17 +73,25 @@ const GameView = () => {
      
        c.translate(player.camera.moveX, player.camera.moveY)
       //  c.translate(camera.position.x, camera.position.y)
-       mundo.update(c);
+      //  mundo.update(c);
+       mundo.drawGrassField(c)
+       
       
       
-      if (isDev) {
-      collisionBlocks.forEach((collisionBlock) => {
-        collisionBlock?.update(c);
-      });
-     
-    }
+   
 
     player.update({c, deltaTime,mapa:mundo,canvas});
+    mundo.drawFrontPlayer(c)
+   
+    if (isDev) {
+      player.collisionBlocks.forEach((collisionBlock) => {
+        
+        
+      collisionBlock?.update(c);
+    });
+   
+  }
+
        c.restore()
 
        requestIdRef.current = window.requestAnimationFrame(animate);
@@ -118,7 +126,7 @@ const GameView = () => {
     <section style={{ position: "relative" }}>
 
      
-      <img src={img} alt="dd" />
+     
       <canvas ref={canvasRef} className="card-container" id="canvas" />
       <Joystick {...{ player }} />
     </section>

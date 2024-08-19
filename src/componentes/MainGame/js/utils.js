@@ -1,20 +1,36 @@
-import { CollisionBlockFull ,CollisionBlockLeft , CollisionBlockRight,CollisionBlockTop} from "./CollisionBlock"
+import { CollisionBlockFull ,CollisionBlockLeft , CollisionBlockRight,CollisionBlockTop ,CollisionBlockBottom} from "./CollisionBlock"
 const blockSize = 32 
 export const parse2D = function (array) {
   const rows = []
-  for (let i = 0; i < array.length; i += 120) {
-    rows.push(array.slice(i, i + 120))
+  
+  
+  
+  for (let i = 0; i < array.data.length; i += array.width) {
+    rows.push(array.data.slice(i, i + array.width))
   }
 
   return rows
 }
 
+const typeBlocks = {
+  collisionBlockFull:641,
+   collisionBlockTop:654,
+   collisionBlockLeft:642,
+   collisionBlockRight:643,
+   collisionBlockBottom:645,
+
+ 
+}
+
 export const createObjectsFrom2D = function (array) {
   const objects = []
+
+  
   array.forEach((row, y) => {
     row.forEach((symbol, x) => {
+      const { collisionBlockTop, collisionBlockLeft, collisionBlockRight, collisionBlockFull , collisionBlockBottom } = typeBlocks
       switch (symbol) {
-        case 1:
+        case collisionBlockTop:
           objects.push(
             new CollisionBlockTop({
               position: {
@@ -24,7 +40,7 @@ export const createObjectsFrom2D = function (array) {
             })
           )
           break;
-        case 2:
+        case collisionBlockLeft:
           objects.push(
             new CollisionBlockLeft({
               position: {
@@ -34,7 +50,7 @@ export const createObjectsFrom2D = function (array) {
             })
           )
           break;
-        case 3:
+        case collisionBlockFull:
           objects.push(
             new CollisionBlockFull({
               position: {
@@ -45,9 +61,20 @@ export const createObjectsFrom2D = function (array) {
           )
           break;
           
-        case 4:
+        case collisionBlockRight:
           objects.push(
             new CollisionBlockRight({
+              position: {
+                x: x * blockSize,
+                y: y * blockSize,
+              },
+            })
+          )
+          break;
+
+        case collisionBlockBottom:
+          objects.push(
+            new CollisionBlockBottom({
               position: {
                 x: x * blockSize,
                 y: y * blockSize,

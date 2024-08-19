@@ -57,3 +57,11 @@ export class CollisionBlockTop extends CollisionBlock {
 
   }
 }
+
+export class CollisionBlockBottom extends CollisionBlock {
+  constructor({ position }) {
+    super({ position,color:'rgba(00, 135, 137, 0.5)', width: blockSize, height: 8, moveY:24 })
+    
+
+  }
+}

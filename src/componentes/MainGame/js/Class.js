@@ -1,5 +1,5 @@
 import { IDLE, RUNNING } from "./playerState";
-import { checkForCollision} from "./utils";
+import { checkForCollision, createObjectsFrom2D} from "./utils";
 const sizeCollisionBlock = 26
 const sizeSprite = 42
 class MainCharacter {
@@ -41,8 +41,16 @@ class MainCharacter {
     } else this.frameTime += deltaTime;
 
     this.draw(c);
+    if (this.mundo !== null){
+      // createObjectsFrom2D(parsedCollisions)
+      // console.log('this.mundo',this.mundo);
+     
+      this.collisionBlocks = createObjectsFrom2D(this.mundo.collectionBlocks);
+      
+    }
     this.checkCollisionsBlocksHorizontal();
-    this.checkCollisionsBlocksVertical();
+      this.checkCollisionsBlocksVertical();
+    
   }
   draw(c) {
    
@@ -162,6 +170,9 @@ class Player extends MainCharacter {
 
    if (this.isDev) {
       this.paintStates(c);
+    
+      
+     
     }
   }
   paintStates(c){

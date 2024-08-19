@@ -1,7 +1,10 @@
 import {  createContext, useContext, useEffect, useState } from "react";
 import Player from "../componentes/MainGame/js/Class";
 import Background from "../componentes/MainGame/js/background";
-import mundo0 from "../js/colictions/colictions.json";
+// import mundo0 from "../js/colictions/colictions.json";
+import mundo0 from "../tiled/mund0PruebaJSons.json";
+
+
 
 
 const GameContext = createContext({})
@@ -9,7 +12,7 @@ const GameContext = createContext({})
 
 const player = new Player({ position:{x:32,y:32}})
 
-const mundo = new Background({position:{x:0,y:0},image:"/img/map0.bmp", imageWidth:3840, imageHeight:1920 ,resourse:mundo0} )
+const mundo = new Background({position:{x:0,y:0},image:"/img/map0.bmp",resourse:mundo0} )
 export const GameContextProvider = ({children})=>{
  const [isDev, setIsDev] = useState(true)
  
