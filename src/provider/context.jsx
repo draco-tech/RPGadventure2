@@ -2,7 +2,7 @@ import {  createContext, useContext, useEffect, useState } from "react";
 import Player from "../componentes/MainGame/js/Class";
 import Background from "../componentes/MainGame/js/background";
 // import mundo0 from "../js/colictions/colictions.json";
-import mundo0 from "../tiled/mund0PruebaJSons.json";
+import mundo0 from "../tiled/mapaBase.json";
 
 
 
