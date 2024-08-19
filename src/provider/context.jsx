@@ -14,7 +14,7 @@ const player = new Player({ position:{x:32,y:32}})
 
 const mundo = new Background({position:{x:0,y:0},image:"/img/map0.bmp",resourse:mundo0} )
 export const GameContextProvider = ({children})=>{
- const [isDev, setIsDev] = useState(true)
+ const [isDev, setIsDev] = useState(false)
  
  useEffect(()=>{
   player.isDev = isDev
