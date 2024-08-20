@@ -65,3 +65,42 @@ export class CollisionBlockBottom extends CollisionBlock {
 
   }
 }
+export class CollisionBlockCenter extends CollisionBlock {
+  constructor({ position }) {
+    super({ position,color:'rgba(00, 135, 337, 0.5)', width: 8, height: blockSize, moveX:12 })
+    
+
+  }
+}
+export class CollisionBlockSqureLeftBottom extends CollisionBlock {
+  constructor({ position }) {
+    super({ position,color:'rgba(00, 135, 337, 0.5)', width: 8, height: 8,moveY:24  })
+    
+
+  }
+}
+export class CollisionBlockSqureLeftTop extends CollisionBlock {
+  constructor({ position }) {
+    super({ position,color:'rgba(00, 135, 337, 0.5)', width: 8, height: 8  })
+    
+
+  }
+}
+export class CollisionBlockSqureRightBottom extends CollisionBlock {
+  constructor({ position }) {
+    super({ position,color:'rgba(00, 135, 337, 0.5)', width: 8, height: 8,moveX:24, moveY:24  })
+    
+
+  }
+}
+export class CollisionBlockSqureRightTop extends CollisionBlock {
+  constructor({ position }) {
+    super({ position,color:'rgba(00, 135, 337, 0.5)', width: 8, height: 8,moveX:24   })
+    
+
+  }
+}
+
+
+
+// collisionBlockCenter

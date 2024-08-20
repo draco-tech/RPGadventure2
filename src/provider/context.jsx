@@ -2,7 +2,9 @@ import {  createContext, useContext, useEffect, useState } from "react";
 import Player from "../componentes/MainGame/js/Class";
 import Background from "../componentes/MainGame/js/background";
 // import mundo0 from "../js/colictions/colictions.json";
-import mundo0 from "../tiled/mapaBase.json";
+import mundo0 from "../tiled/mapaGia2.json";
+console.log('mundo0--->',mundo0);
+
 
 
 
@@ -10,9 +12,9 @@ import mundo0 from "../tiled/mapaBase.json";
 const GameContext = createContext({})
 // "/img/map0.bmp" 3840 × 1920
 
-const player = new Player({ position:{x:32,y:32}})
+const player = new Player({ position:{x:32,y:64}})
 
-const mundo = new Background({position:{x:0,y:0},image:"/img/map0.bmp",resourse:mundo0} )
+const mundo = new Background({resourse:mundo0} )
 export const GameContextProvider = ({children})=>{
  const [isDev, setIsDev] = useState(false)
  

@@ -3,10 +3,26 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "mapaGia.tmx",
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "ColitionMark.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Grass.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Ground.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Plant.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "Shadow.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -14,6 +30,18 @@
         "ShadowPlant.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
+        },
+        "Wall.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "mapaGia.tmx": {
+            "scale": 0.87,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 232.18390804597698,
+                "y": 129.3103448275862
+            }
         }
     },
     "last.exportedFilePath": "/Users/angelalbertobernechea/Desktop/ejemploReact/juego/src/tiled",
@@ -21,11 +49,25 @@
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
     "openFiles": [
+        "Grass.tsx",
+        "Wall.tsx",
+        "Plant.tsx",
+        "mapaGia.tmx",
+        "Ground.tsx",
+        "ColitionMark.tsx",
+        "ShadowPlant.tsx",
+        "Shadow.tsx"
     ],
     "project": "untitled.tiled-project",
     "recentFiles": [
+        "Grass.tsx",
+        "Wall.tsx",
+        "Plant.tsx",
         "Shadow.tsx",
-        "ShadowPlant.tsx"
+        "ShadowPlant.tsx",
+        "ColitionMark.tsx",
+        "Ground.tsx",
+        "mapaGia.tmx"
     ],
     "tileset.lastUsedFormat": "tsx"
 }

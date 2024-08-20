@@ -4,8 +4,12 @@ import imgData  from "/tailmap/Wall.png"
 
 const TILE_SIZE = 32;
 class Background{
-  constructor({position,image ,resourse}){
-    this.position = position
+  constructor({resourse}){
+    this.position = {
+      x:0,
+      y:0
+
+    }
     this.image = new Image()
     this.scale = 1
     this.w = resourse.width * resourse.tilewidth *  this.scale
