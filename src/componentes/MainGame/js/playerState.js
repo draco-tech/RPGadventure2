@@ -15,6 +15,13 @@ class State {
     this.state = state;
     this.player = player;
   }
+
+  enter() {
+    console.log("enter", this.state);
+  }
+  exit() {
+    console.log("exit", this.state);
+  }
 }
 
 export class IDLE extends State {
@@ -42,16 +49,16 @@ export class IDLE extends State {
 
         break;
       case "ArrowDown":
-       changeState({
-         player: this.player,
-         nextState: states.RUNNING,
-         lastDercion: this.player.lastDercion,
-         frameY:
-           this.player.lastDercion == "left"
-             ? acctionsSprite.runLeft
-             : acctionsSprite.runRight,
-         speedY: this.player.speed,
-       })
+        changeState({
+          player: this.player,
+          nextState: states.RUNNING,
+          lastDercion: this.player.lastDercion,
+          frameY:
+            this.player.lastDercion == "left"
+              ? acctionsSprite.runLeft
+              : acctionsSprite.runRight,
+          speedY: this.player.speed,
+        });
 
         break;
       case "ArrowLeft":
@@ -64,11 +71,9 @@ export class IDLE extends State {
               ? acctionsSprite.runLeft
               : acctionsSprite.runRight,
           speedX: -this.player.speed,
-        })
+        });
         break;
       case "ArrowRight":
-       
-
         changeState({
           player: this.player,
           nextState: states.RUNNING,
@@ -84,6 +89,7 @@ export class IDLE extends State {
     }
   }
   handleKeyUp(event, player) {}
+  exit(player) {}
 }
 
 export class RUNNING extends State {
@@ -177,6 +183,8 @@ export class RUNNING extends State {
         break;
     }
   }
+
+  exit(player) {}
 }
 
 function changeState({
@@ -187,9 +195,17 @@ function changeState({
   speedX = 0,
   speedY = 0,
 }) {
-  player.frameY = frameY;
   player.lastDercion = lastDercion;
-  player.indexState = nextState;
+  player.frameY = frameY;
   player.velocity.x = speedX;
   player.velocity.y = speedY;
+
+  if (nextState != player.indexState) {
+    player.indexState = nextState;
+
+    // make a change state
+    player.currentState.exit(this);
+    player.currentState = player.states[player.indexState];
+    player.currentState.enter(this);
+  }
 }

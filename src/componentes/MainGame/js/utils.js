@@ -2,175 +2,48 @@ import { CollisionBlockFull ,CollisionBlockLeft , CollisionBlockRight,CollisionB
 const blockSize = 32 
 export const parse2D = function (array) {
   const rows = []
-  
-  
-  
   for (let i = 0; i < array.data.length; i += array.width) {
     rows.push(array.data.slice(i, i + array.width))
   }
-
   return rows
 }
-
-const typeBlocks = {
-  collisionBlockFull:641,
-   collisionBlockTop:642,
-   collisionBlockLeft:644,
-   collisionBlockRight:645,
-   collisionBlockBottom:643,
-   collisionBlockCenter:646,
-   //  ------------------------------------
-   collisionBlockSqureLeftBottom:647,
-   collisionBlockSqureRightBottom:648,
-   collisionBlockSqureLeftTop:649,
-   collisionBlockSqureRightTop:650
-
-
-
- 
-}
+const blockElements = {
+  collisionBlockFull:             { id: 641, classElement: CollisionBlockFull },
+  collisionBlockTop:              { id: 642, classElement: CollisionBlockTop },
+  collisionBlockLeft:             { id: 644, classElement: CollisionBlockLeft },
+  collisionBlockRight:            { id: 645, classElement: CollisionBlockRight },
+  collisionBlockBottom:           { id: 643, classElement: CollisionBlockBottom },
+  collisionBlockCenter:           { id: 646, classElement: CollisionBlockCenter },
+  collisionBlockSqureLeftBottom:  { id: 647, classElement: CollisionBlockSqureLeftBottom },
+  collisionBlockSqureRightBottom: { id: 648, classElement: CollisionBlockSqureRightBottom },
+  collisionBlockSqureLeftTop:     { id: 649, classElement: CollisionBlockSqureLeftTop },
+  collisionBlockSqureRightTop:    { id: 650, classElement: CollisionBlockSqureRightTop }
+};
 
 export const createObjectsFrom2D = function (array) {
-  const objects = []
+  const objects = [];
 
-  
   array.forEach((row, y) => {
     row.forEach((symbol, x) => {
-      const { 
-        collisionBlockTop, collisionBlockLeft,
-        collisionBlockRight, collisionBlockFull ,
-        collisionBlockBottom, collisionBlockCenter,
-        collisionBlockSqureLeftBottom , collisionBlockSqureRightBottom, 
-        collisionBlockSqureLeftTop, collisionBlockSqureRightTop } = typeBlocks
-      switch (symbol) {
-        case collisionBlockTop:
+      for (const { id, classElement } of Object.values(blockElements)) {
+        if (symbol === id) {
           objects.push(
-            new CollisionBlockTop({
+            new classElement({
               position: {
                 x: x * blockSize,
                 y: y * blockSize,
               },
             })
-          )
-          break;
-        case collisionBlockLeft:
-          objects.push(
-            new CollisionBlockLeft({
-              position: {
-                x: x * blockSize,
-                y: y * blockSize,
-              },
-            })
-          )
-          break;
-        case collisionBlockFull:
-          objects.push(
-            new CollisionBlockFull({
-              position: {
-                x: x * blockSize,
-                y: y * blockSize,
-              },
-            })
-          )
-          break;
-          
-        case collisionBlockRight:
-          objects.push(
-            new CollisionBlockRight({
-              position: {
-                x: x * blockSize,
-                y: y * blockSize,
-              },
-            })
-          )
-          break;
-
-        case collisionBlockBottom:
-          objects.push(
-            new CollisionBlockBottom({
-              position: {
-                x: x * blockSize,
-                y: y * blockSize,
-              },
-            })
-          )
-          break;
-          case collisionBlockCenter:
-            objects.push(
-              new CollisionBlockCenter({
-                position: {
-                  x: x * blockSize,
-                  y: y * blockSize,
-                },
-              })
-            )
-            break
-            case collisionBlockSqureLeftBottom:
-            objects.push(
-              new CollisionBlockSqureLeftBottom({
-                position: {
-                  x: x * blockSize,
-                  y: y * blockSize,
-                },
-              })
-            )
-            break
-            case collisionBlockSqureLeftTop:
-            objects.push(
-              new CollisionBlockSqureLeftTop({
-                position: {
-                  x: x * blockSize,
-                  y: y * blockSize,
-                },
-              })
-            )
-            break
-            case collisionBlockSqureRightBottom:
-            objects.push(
-              new CollisionBlockSqureRightBottom({
-                position: {
-                  x: x * blockSize,
-                  y: y * blockSize,
-                },
-              })
-            )
-            break
-            case collisionBlockSqureRightTop:
-            objects.push(
-              new CollisionBlockSqureRightTop({
-                position: {
-                  x: x * blockSize,
-                  y: y * blockSize,
-                },
-              })
-            )
-            break
-
-
-            // CollisionBlockSqureLeftBottom
-      
-        default:
-          break;
+          );
+          break; // Salir del bucle una vez que se ha encontrado el bloque correspondiente
+        }
       }
+    });
+  });
 
+  return objects;
+};
 
-
-
-
-
-
-
-
-
-
-
-
-     
-    })
-  })
-
-  return objects
-}
 
 export function checkForCollision({ object1, object2 }) {
   return (
