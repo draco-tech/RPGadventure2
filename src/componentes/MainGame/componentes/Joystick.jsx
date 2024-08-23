@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import nipplejs from 'nipplejs';
-import useGameContext from "../../../provider/context";
+import useGameContext, { player } from "../../../provider/context";
 
-const Joystick = ({player}) => {
+const Joystick = () => {
  const { isDev } = useGameContext();
   
   const joystickRef = useRef(null);

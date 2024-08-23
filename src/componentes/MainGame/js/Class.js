@@ -1,13 +1,18 @@
-import { IDLE, RUNNING } from "./playerState";
-import { checkForCollision, createObjectsFrom2D } from "./utils";
+
+import { NPC_CHASE, NPC_IDLE, NPC_PATROL, npcStates } from "./npc/npcState";
+import { changeState } from "./playerState";
+import { checkForCollision, createObjectsFrom2D, detectCollisionCircle } from "./utils";
  
 
 class MainCharacter {
-  constructor({ position, isDev }) {
+  constructor({ position, isDev  , states = [] ,tag = "unknows"}) {
     this.isDev = isDev;
     this.scale = 1;
-    this.x = position.x;
-    this.y = position.y;
+    this.position ={
+      x: position.x,
+      y: position.y
+    }
+    this.tag = tag;
     this.sizeSprite = 42;
     this.sizeCollisionBlock = 26;
     this.width = this.sizeCollisionBlock;
@@ -19,43 +24,58 @@ class MainCharacter {
       y: 0,
     };
     this.sprite = new Image();
-    this.sprite.src = "public/blueNinja/grogGreenAll.png";
-    this.frameWidthLimit = 10;
+    this.states = states.map((state) => new state(this));
+    this.indexState = 0;
+    this.currentState = this.states[this.indexState];
+    this.lastDercion = "";
     this.frameX = 0;
     this.frameY = 0;
+    this.flipToLeft = false;
+    this.frameWidthLimit = 10;
     this.frameWidth = 32;
     this.frameHeight = 32;
-    this.frameTime = 0;
     this.maxFrame = 5;
     this.fps = 14;
+    this.frameTime = 0;
     this.frameInterval = 1000 / this.fps;
     this.collisionBlocks = [];
+    this.radius = 15
   }
-  update(c, deltaTime) {
+  update(c, deltaTime, entities) {
     this.checkCanvasBoundaries();
     this.playerIsMoved();
-
+    this.checkEntetiesCollisions(entities);
     //sprrite animation
     if (this.frameTime > this.frameInterval) {
       this.frameTime = 0;
       if (this.frameX < this.maxFrame) this.frameX++;
       else this.frameX = 0;
     } else this.frameTime += deltaTime;
-
+    this.flipToLeft = this.velocity.x < 0;
     this.draw(c);
-    if (this.mundo !== null) {
+    
+    
+    if (this.mundo) {
 
       this.collisionBlocks = createObjectsFrom2D(this.mundo.collectionBlocks);
       this.checkCollisionsBlocksHorizontal();
       this.checkCollisionsBlocksVertical();
     }
   }
+  checkEntetiesCollisions(entities) {
+    // Verificar colisiones con otras entidades
+    entities?.forEach(other => {
+      if (other !== this && detectCollisionCircle(this, other)) {
+        this.tag !== other.tag && this.onCollision(other);
+      }
+    });
+  }
   draw(c) {
     c.fillStyle = "#00000030";
     c.beginPath();
     c.ellipse(
-      this.x + this.width / 2,
-      this.y + this.height,
+      this.position.x + this.width / 2,
+      this.position.y + this.height,
       this.width / 3,
       this.height / 6,
       0,
@@ -63,109 +83,36 @@ class MainCharacter {
       Math.PI * 2
     );
     c.fill();
+    c.save(); // Guardar el estado actual del contexto
 
+
+    // Invertir el eje X si `flipToLeft` es verdadero this.flipToLeft ||
+      c.scale(  this.lastDercion === "left" ? -1 : 1, 1); // Invertir el eje X si `flipToLeft` es verdadero
+    
+    
+    // Ajustar la posición en X para que la imagen se pinte correctamente si está invertida
     c.drawImage(
       this.sprite,
       this.frameX * this.frameWidth,
       this.frameY * this.frameHeight,
       this.frameWidth,
       this.frameHeight,
-      this.x - this.sizeSprite / 5,
-      this.y - this.sizeSprite / 5 - 8,
+      this.flipToLeft  || this.lastDercion === "left"
+        ? -(this.position.x + this.sizeSprite) + this.sizeSprite / 5 // Ajuste para cuando se invierte
+        : this.position.x - this.sizeSprite / 5,  // Posición normal
+      this.position.y - this.sizeSprite / 5 - 8,
       this.sizeSprite,
       this.sizeSprite
     );
+    
+    c.restore(); // Restaurar el estado del contexto
+
+
     if (this.isDev) {
       c.fillStyle = "#f000ff50";
-      c.fillRect(this.x, this.y, this.width, this.height);
-    }
-  }
-  playerIsMoved() {
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
-  }
-  checkCanvasBoundaries() {
-    if (this.mundo !== null) {
-      if (this.x >= this.mundo.w - this.width) {
-        this.x = this.mundo.w - this.width;
-      } else if (this.x <= 0) {
-        this.x = 0;
-      }
-      if (this.y >= this.mundo.h - this.height) {
-        this.y = this.mundo.h - this.height;
-      } else if (this.y <= 0) {
-        this.y = 0;
-      }
-    }
-  }
-  checkCollisionsBlocksHorizontal() {
-    for (let i = 0; i < this.collisionBlocks.length; i++) {
-      const collisionBlock = this.collisionBlocks[i];
-
-      if (checkForCollision({ object1: this, object2: collisionBlock })) {
-        if (this.velocity.x > 0) {
-          // Moviendo hacia la derecha
-          this.velocity.x = 0;
-          this.x = collisionBlock.position.x - this.width - 1; // Ajuste de posición para alinearse correctamente al borde del bloque
-        }
-        if (this.velocity.x < 0) {
-          // Moviendo hacia la izquierda
-          this.velocity.x = 0;
-
-          this.x = collisionBlock.position.x + collisionBlock.width + 1; // Ajuste de posición para alinearse correctamente al borde del bloque
-        }
-      }
-    }
-  }
-  checkCollisionsBlocksVertical() {
-    for (let i = 0; i < this.collisionBlocks.length; i++) {
-      const collisionBlock = this.collisionBlocks[i];
-
-      if (checkForCollision({ object1: this, object2: collisionBlock })) {
-        if (this.velocity.y > 0) {
-          // Moviendo hacia abajo
-          this.velocity.y = 0;
-          this.y = collisionBlock.position.y - this.height; // Ajuste de posición para alinearse correctamente al borde del bloque
-        } else if (this.velocity.y < 0) {
-          // Moviendo hacia arriba
-          this.velocity.y = 0;
-          this.y = collisionBlock.position.y + collisionBlock.height; // Ajuste de posición para alinearse correctamente al borde del bloque
-        }
-      }
-    }
-  }
-}
-
-class Player extends MainCharacter {
-  constructor({ position, isDev, mundo }) {
-    super({ position, isDev, mundo });
-
-    this.camera = {
-      x: this.x,
-      y: this.y,
-      w: 300,
-      h: 300,
-      isFollowing: true,
-      moveX: 0,
-      moveY: 0,
-    };
-    this.keyPress = false;
-    this.mundo = mundo;
-    this.states = [new IDLE(this), new RUNNING(this)];
-    this.indexState = 0;
-    this.currentState = this.states[this.indexState];
-    this.lastDercion = "";
-  }
-
-  update({ c, deltaTime, canvas }) {
-    super.update(c, deltaTime);
-    this.input();
-
-    this.updateCamera({ c, canvas });
-
-    if (this.isDev) {
-      this.paintStates({c , msj:this.currentState.state, x:this.x-5, y:this.y-10});
-    }
+      c.fillRect(this.position.x, this.position.y, this.width, this.height);
+    } 
+   
   }
   paintStates({c, msj, x, y}) {
     c.font = "16px Arial"; // Tamaño y fuente del texto
@@ -179,99 +126,205 @@ class Player extends MainCharacter {
     c.lineWidth = 1; // Ancho del borde
     c.strokeText(msj, x,y); // Texto, posición x, posición y
   }
-
-  updateCamera({ c, canvas }) {
-    if (this.isDev) {
-      c.fillStyle = "#0ff00040";
-      c.fillRect(this.camera.x, this.camera.y, this.camera.w, this.camera.h);
-    }
-    //!player is on the top
-    this.shouldPanCameraUp();
-    // !player is on the left
-
-    this.shouldPanCameraToTheLeft({ canvas });
-    // !player is on the right
-
-    this.shouldPanCameraToTheRight({ canvas });
-
-    // !player is on the bottom
-
-    this.shouldPanCameraDown({ canvas });
-
-    if (this.camera.isFollowing) {
-      this.camera.x = this.x - this.camera.w / 2 + this.width / 2;
-      this.camera.y = this.y - this.camera.h / 2 + this.height / 2;
-    }
+  playerIsMoved() {
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
   }
-  shouldPanCameraToTheLeft({ canvas }) {
-    // Calcula el ancho movido basado en la posición actual de la cámara
-    const movedWidth = Math.abs(this.camera.moveX);
-
-    // Si el jugador se mueve hacia la derecha, salir de la función
-    if (this.velocity.x >= 0) return;
-
-    // Verifica si la cámara ha alcanzado el límite izquierdo visible
-    if (this.camera.x <= movedWidth) {
-      // Solo mueve la cámara si aún hay espacio en el mundo para moverse hacia la izquierda
-      if (movedWidth > 0) {
-        this.camera.moveX -= this.velocity.x; // Mueve la cámara en la dirección opuesta
+  onCollisionCanvasHorizontal() {}
+  onCollisionCanvasVertical() {}    
+  checkCanvasBoundaries() {
+    if (this.mundo) {
+      if (this.position.x >= this.mundo.w - this.width) {
+        this.position.x = this.mundo.w - this.width;
+        this.onCollisionCanvasHorizontal();
+      } else if (this.position.x <= 0) {
+        this.position.x = 0;
+        this.onCollisionCanvasHorizontal();
       }
-    }
-
-    // camera.position.x -= this.velocity.x
-  }
-
-  shouldPanCameraToTheRight({ canvas }) {
-    const movedWidth = canvas.width + Math.abs(this.camera.moveX);
-
-    if (this.velocity.x <= 0) return;
-
-    if (this.camera.x + this.camera.w >= movedWidth) {
-      if (movedWidth < this.mundo.w) {
-        this.camera.moveX -= this.velocity.x;
+      if (this.position.y >= this.mundo.h - this.height) {
+        this.position.y = this.mundo.h - this.height;
+        this.onCollisionCanvasVertical();
+      } else if (this.position.y <= 0) {
+        this.position.y = 0;
+        this.onCollisionCanvasVertical();
       }
     }
   }
-  shouldPanCameraUp() {
-    const movedHeight = Math.abs(this.camera.moveY);
+  onCollicioBlockHorizontalLeft(collisionBlock) {
+    this.velocity.x = 0
+    this.position.x = collisionBlock.position.x + collisionBlock.width + 1.5; // Ajuste de posición para alinearse correctamente al borde del bloque
+          
+   }
+  onCollicioBlockHorizontalRight(collisionBlock) {
+    this.velocity.x = 0
+    this.position.x = collisionBlock.position.x - this.width - 1.5; // Ajuste de posición para alinearse correctamente al borde del bloque
 
-    // Si el jugador se mueve hacia abajo, salir de la función
-    if (this.velocity.y >= 0) return;
+  }
+  onCollicioBlockVerticalTop(collisionBlock) {
+    this.velocity.y = 0
+    this.position.y = collisionBlock.position.y - this.height - 1.5; // Ajuste de posición para alinearse correctamente al borde del bloque
+          
+  }
+  onCollicioBlockVerticalBottom(collisionBlock) {
+    this.velocity.y = 0
+    this.position.y = collisionBlock.position.y + collisionBlock.height + 1.5; // Ajuste de posición para alinearse correctamente al borde del bloque
+          
+  }
 
-    // Verifica si la cámara ha alcanzado el límite superior visible
-    if (this.camera.y <= movedHeight) {
-      // Solo mueve la cámara si aún hay espacio en el mundo para moverse hacia arriba
-      if (movedHeight > 0) {
-        this.camera.moveY -= this.velocity.y; // Mueve la cámara hacia arriba
+
+  checkCollisionsBlocksHorizontal() {
+    for (let i = 0; i < this.collisionBlocks.length; i++) {
+      const collisionBlock = this.collisionBlocks[i];
+
+      if (checkForCollision({ object1: this, object2: collisionBlock })) {
+        if (this.velocity.x > 0) {
+          // Moviendo hacia la derecha
+
+          // if is player do somethig here but If is NPC do somethig else here
+          this.onCollicioBlockHorizontalRight(collisionBlock)
+         
+        }
+        if (this.velocity.x < 0) {
+          // Moviendo hacia la izquierda
+          this.onCollicioBlockHorizontalLeft(collisionBlock)
+   
+        }
       }
     }
   }
-  shouldPanCameraDown({ canvas }) {
-    const movedHeight = canvas.height + Math.abs(this.camera.moveY);
+  checkCollisionsBlocksVertical() {
+    for (let i = 0; i < this.collisionBlocks.length; i++) {
+      const collisionBlock = this.collisionBlocks[i];
 
-    // Si el jugador se mueve hacia arriba, salir de la función
-    if (this.velocity.y <= 0) return;
+      if (checkForCollision({ object1: this, object2: collisionBlock })) {
+        if (this.velocity.y > 0) {
+          // Moviendo hacia abajo
 
-    // Verifica si la cámara ha alcanzado el límite inferior visible
-    if (this.camera.y + this.camera.h >= movedHeight) {
-      // Solo mueve la cámara si aún hay espacio en el mundo para moverse hacia abajo
-      if (movedHeight < this.mundo.h) {
-        this.camera.moveY -= this.velocity.y; // Mueve la cámara hacia abajo
+          this.onCollicioBlockVerticalTop(collisionBlock) 
+   
+        } else if (this.velocity.y < 0) {
+          // Moviendo hacia arriba
+          this.onCollicioBlockVerticalBottom(collisionBlock)
+     
+
+        }
       }
     }
   }
-
-  input() {
-    document.addEventListener("keydown", (event) => {
-      this.currentState.handleKeyDown(event);
-
-      this.keyPress = true;
-    });
-    document.addEventListener("keyup", (event) => {
-      this.currentState.handleKeyUp(event);
-      this.keyPress = false;
-    });
-  }
+  drawZone(c){
+    ; // Radio del círculo
+  
+  // Dibujar el círculo
+  c.beginPath();
+  c.arc(this.position.x+this.width/2, this.position.y + this.height/2, this.radius, 0, Math.PI * 2, false); // Dibuja el círculo completo
+  c.fillStyle = '#9b650030'; // Color del círculo
+  c.fill(); // Rellena el círculo
+  c.strokeStyle = 'black'; // Color del borde
+  c.stroke(); // Dibuja el borde del círculo
+   }
+   onCollision(other) {
+    // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
+    // Manejar la colisión de alguna manera
+   }
 }
 
-export default Player;
+export default MainCharacter
+
+
+export class NPC extends MainCharacter {
+  constructor({ position ,
+    img = "public/blueNinja/ninjaBluAll.png",
+    frameWidth = 32,
+    frameHeight = 32,
+    maxFrame = 5,
+   
+
+  } ) {
+    super({
+      position,
+      states:[NPC_IDLE , NPC_PATROL , NPC_CHASE],
+    });
+    this.sprite.src = img;
+    this.velocity.x = 0
+    this.velocity.y = 0
+    this.frameWidth = frameWidth;
+    this.frameHeight = frameHeight;
+    this.maxFrame = maxFrame;
+    this.fps = 2;
+    this.radius = 50
+    this.tag = 'enemy'
+    this.speed = 2
+    this.currentState.enter()
+    this.isDev = false
+  } 
+  
+  update(c , deltaTime , entities) {
+    
+    super.update(c, deltaTime, entities)
+    this.currentState.update();
+    this.lastDercion = this.velocity.x > 0 ? 'right' : 'left'
+    
+    if (this.isDev) {
+      this.paintStates({c , msj:this.currentState.state, x:this.position.x-5, y:this.position.y-20});
+      this.drawZone(c)
+    }
+   
+  }
+  onCollisionCanvasHorizontal() {
+    
+  
+    this.velocity.x =   this.velocity.x > 0  ? -this.speed : this.speed
+  }
+  onCollisionCanvasVertical() {
+    this.velocity.y =   -this.velocity.y
+  }
+
+   onCollicioBlockHorizontalLeft(collisionBlock) {
+    super.onCollicioBlockHorizontalLeft(collisionBlock)
+    this.velocity.x = this.velocity.y > 0 ? this.speed :  -this.speed;// Invertir la dirección en el eje X
+    // this.position.x = collisionBlock.position.x - this.width - 1; // Ajuste de posición
+ 
+  }
+  onCollicioBlockHorizontalRight(collisionBlock) {
+    super.onCollicioBlockHorizontalRight(collisionBlock)
+    setTimeout(() => {
+  
+      this.velocity.x = this.velocity.y > 0 ? this.speed :  -this.speed; // Invertir la dirección en el eje X
+    }, 10);
+   
+    // this.position.x = collisionBlock.position.x - this.width - 1; // Ajuste de posición
+ 
+
+  } 
+  onCollicioBlockVerticalTop(collisionBlock) {  
+    super.onCollicioBlockVerticalTop(collisionBlock)
+    
+    this.velocity.y  = -this.speed; // Invertir la dirección en el eje Y
+    // this.position.y = collisionBlock.position.y + collisionBlock.height + 1; 
+    
+ 
+
+  }
+  onCollicioBlockVerticalBottom(collisionBlock) {
+    super.onCollicioBlockVerticalBottom(collisionBlock)
+    this.velocity.y = this.speed; // Invertir la dirección en el eje Y
+    // this.position.y = collisionBlock.position.y - this.height - 1;
+  }
+
+  onCollision(other) {
+    // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
+    // Manejar la colisión de alguna manera
+    changeState({
+      character: this,
+      nextState: npcStates.NPC_CHACE,
+      lastDercion: this.lastDercion,
+      frameY: this.frameY,
+      speedY: 0,
+    })
+    this.currentState?.chasePlayer(other)
+   }
+   
+
+}
+
+

@@ -7,6 +7,7 @@ import PlayerInfo from './componentes/PlayerInfo'
 import ShowItems from './componentes/ShowItem'
 import { useEffect, useRef, useState } from 'react';
 import useGameContext from './provider/context'
+import{ MainGame} from './componentes/MainGame/js/gameClass'
 
 let myBarraja = [{
   title: "Blade of Eternity",
@@ -22,6 +23,7 @@ let myBarraja = [{
 
 function App() {
  
+
   
 
   return (
@@ -43,8 +45,8 @@ const MyMenu = ()=>{
     <div>
 
 <p
-          onClick={changeMundo}
-          >nextworld</p>
+          // onClick={()=>{MainGame.changeWorldIndex(2) }}
+          > current world : {MainGame.indexWordl}</p>
 
       {swicht ?
         <div

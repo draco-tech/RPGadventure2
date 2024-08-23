@@ -1,7 +1,7 @@
 import { parse2D } from "./utils";
 import imgData from "/tailmap/Wall.png";
 
-
+// Layers: Grass - Shadows  - Walls - Plants - TopPlayer - TopPlayer2 - Collictions
 class Background {
   constructor({ resourse }) {
     this.position = {

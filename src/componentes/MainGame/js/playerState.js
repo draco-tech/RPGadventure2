@@ -4,13 +4,11 @@ const states = {
 };
 
 const acctionsSprite = {
-  idleRight: 0,
-  idleLeft: 4,
-  runRight: 1,
-  runLeft: 5,
+  idle: 0,
+  run: 1,
 };
 
-class State {
+export class State {
   constructor(state, player) {
     this.state = state;
     this.player = player;
@@ -28,60 +26,46 @@ export class IDLE extends State {
   constructor(player) {
     super("IDLE", player);
   }
-  enter(player) {
-    this.player.lastDercion == "left"
-      ? (this.player.frameY = acctionsSprite.idleLeft)
-      : (this.player.frameY = acctionsSprite.idleRight);
+  enter() {
+    this.player.frameY = acctionsSprite.idle;
   }
   handleKeyDown(event) {
     switch (event.key) {
       case "ArrowUp":
         changeState({
-          player: this.player,
+          character: this.player,
           nextState: states.RUNNING,
           lastDercion: this.player.lastDercion,
-          frameY:
-            this.player.lastDercion == "left"
-              ? acctionsSprite.runLeft
-              : acctionsSprite.runRight,
+          frameY:acctionsSprite.run,
           speedY: -this.player.speed,
         });
 
         break;
       case "ArrowDown":
         changeState({
-          player: this.player,
+          character: this.player,
           nextState: states.RUNNING,
           lastDercion: this.player.lastDercion,
-          frameY:
-            this.player.lastDercion == "left"
-              ? acctionsSprite.runLeft
-              : acctionsSprite.runRight,
+          frameY:acctionsSprite.run,
           speedY: this.player.speed,
         });
 
         break;
       case "ArrowLeft":
         changeState({
-          player: this.player,
+          character: this.player,
           nextState: states.RUNNING,
           lastDercion: "left",
-          frameY:
-            this.player.lastDercion == "left"
-              ? acctionsSprite.runLeft
-              : acctionsSprite.runRight,
+          frameY: acctionsSprite.run,
           speedX: -this.player.speed,
         });
         break;
       case "ArrowRight":
         changeState({
-          player: this.player,
+          character: this.player,
           nextState: states.RUNNING,
           lastDercion: "right",
-          frameY:
-            this.player.lastDercion == "left"
-              ? acctionsSprite.runLeft
-              : acctionsSprite.runRight,
+          frameY:acctionsSprite.run,
           speedX: this.player.speed,
         });
 
@@ -98,58 +82,52 @@ export class RUNNING extends State {
   }
   enter(player) {}
   handleKeyDown(event) {
-    const { player } = this;
+   
 
     switch (event.key) {
       case "ArrowUp":
         changeState({
-          player,
+          character: this.player ,
           nextState: states.RUNNING,
-          lastDercion: player.lastDercion,
-          frameY:
-            player.lastDercion == "left"
-              ? acctionsSprite.runLeft
-              : acctionsSprite.runRight,
-          speedY: -player.speed,
+          lastDercion: this.player.lastDercion,
+          frameY:acctionsSprite.run,
+          speedY: -this.player.speed,
         });
 
         break;
       case "ArrowDown":
         changeState({
-          player,
+          character:  this.player,
           nextState: states.RUNNING,
-          lastDercion: player.lastDercion,
-          frameY:
-            player.lastDercion == "left"
-              ? acctionsSprite.runLeft
-              : acctionsSprite.runRight,
-          speedY: player.speed,
+          lastDercion: this.player.lastDercion,
+          frameY:acctionsSprite.run,
+          speedY: this.player.speed,
         });
         break;
       case "ArrowLeft":
         changeState({
-          player,
+          character:  this.player,
           nextState: states.RUNNING,
           lastDercion: "left",
-          frameY: acctionsSprite.runLeft,
-          speedX: -player.speed,
+          frameY: acctionsSprite.run,
+          speedX: -this.player.speed,
         });
 
         break;
       case "ArrowRight":
         changeState({
-          player,
+          character:  this.player,
           nextState: states.RUNNING,
           lastDercion: "right",
-          frameY: acctionsSprite.runRight,
-          speedX: player.speed,
+          frameY: acctionsSprite.run,
+          speedX: this.player.speed,
         });
 
         break;
     }
   }
   handleKeyUp(event) {
-    let { player } = this;
+    
 
     this.player.velocity = {
       x: 0,
@@ -159,26 +137,26 @@ export class RUNNING extends State {
       case "ArrowUp":
       case "ArrowDown":
         changeState({
-          player,
+          character:  this.player,
           nextState: states.IDLE,
-          lastDercion: player.lastDercion,
-          frameY: acctionsSprite.idleLeft,
+          lastDercion: this.player.lastDercion,
+          frameY: acctionsSprite.idle,
         });
         break;
       case "ArrowLeft":
         changeState({
-          player,
+          character:  this.player,
           nextState: states.IDLE,
           lastDercion: "left",
-          frameY: acctionsSprite.idleLeft,
+          frameY: acctionsSprite.idle,
         });
         break;
       case "ArrowRight":
         changeState({
-          player,
+          character:  this.player,
           nextState: states.IDLE,
           lastDercion: "right",
-          frameY: acctionsSprite.idleRight,
+          frameY: acctionsSprite.idle,
         });
         break;
     }
@@ -187,25 +165,25 @@ export class RUNNING extends State {
   exit(player) {}
 }
 
-function changeState({
-  player,
+export function changeState({
+  character,
   nextState,
   lastDercion,
   frameY,
   speedX = 0,
   speedY = 0,
 }) {
-  player.lastDercion = lastDercion;
-  player.frameY = frameY;
-  player.velocity.x = speedX;
-  player.velocity.y = speedY;
+  character.lastDercion = lastDercion;
+  character.frameY = frameY;
+  character.velocity.x = speedX;
+  character.velocity.y = speedY;
 
-  if (nextState != player.indexState) {
-    player.indexState = nextState;
+  if (nextState != character.indexState) {
+    character.indexState = nextState;
 
     // make a change state
-    player.currentState.exit(this);
-    player.currentState = player.states[player.indexState];
-    player.currentState.enter(this);
+    character.currentState.exit(this);
+    character.currentState = character.states[character.indexState];
+    character.currentState.enter(this);
   }
 }

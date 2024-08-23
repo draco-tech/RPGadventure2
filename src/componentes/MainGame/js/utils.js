@@ -8,16 +8,16 @@ export const parse2D = function (array) {
   return rows
 }
 const blockElements = {
-  collisionBlockFull:             { id: 641, classElement: CollisionBlockFull },
-  collisionBlockTop:              { id: 642, classElement: CollisionBlockTop },
-  collisionBlockLeft:             { id: 644, classElement: CollisionBlockLeft },
-  collisionBlockRight:            { id: 645, classElement: CollisionBlockRight },
-  collisionBlockBottom:           { id: 643, classElement: CollisionBlockBottom },
-  collisionBlockCenter:           { id: 646, classElement: CollisionBlockCenter },
-  collisionBlockSqureLeftBottom:  { id: 647, classElement: CollisionBlockSqureLeftBottom },
-  collisionBlockSqureRightBottom: { id: 648, classElement: CollisionBlockSqureRightBottom },
-  collisionBlockSqureLeftTop:     { id: 649, classElement: CollisionBlockSqureLeftTop },
-  collisionBlockSqureRightTop:    { id: 650, classElement: CollisionBlockSqureRightTop }
+  collisionBlockFull:             { id: 577, classElement: CollisionBlockFull },
+  collisionBlockTop:              { id: 578, classElement: CollisionBlockTop },
+  collisionBlockBottom:           { id: 579, classElement: CollisionBlockBottom },
+  collisionBlockLeft:             { id: 580, classElement: CollisionBlockLeft },
+  collisionBlockRight:            { id: 581, classElement: CollisionBlockRight },
+  collisionBlockCenter:           { id: 582, classElement: CollisionBlockCenter },
+  collisionBlockSqureLeftBottom:  { id: 583, classElement: CollisionBlockSqureLeftBottom },
+  collisionBlockSqureRightBottom: { id: 584, classElement: CollisionBlockSqureRightBottom },
+  collisionBlockSqureLeftTop:     { id: 585, classElement: CollisionBlockSqureLeftTop },
+  collisionBlockSqureRightTop:    { id: 586, classElement: CollisionBlockSqureRightTop }
 };
 
 export const createObjectsFrom2D = function (array) {
@@ -47,9 +47,21 @@ export const createObjectsFrom2D = function (array) {
 
 export function checkForCollision({ object1, object2 }) {
   return (
-    object1.y + object1.height > object2.position.y &&
-    object1.y < object2.position.y + object2.height &&
-    object1.x + object1.width > object2.position.x &&
-    object1.x < object2.position.x + object2.width
+    object1.position.y + object1.height > object2.position.y &&
+    object1.position.y < object2.position.y + object2.height &&
+    object1.position.x + object1.width > object2.position.x &&
+    object1.position.x < object2.position.x + object2.width
   );
 }
+
+
+
+export  function detectCollisionCircle(circle1, circle2) {
+  const dx = circle2.position.x - circle1.position.x;
+  const dy = circle2.position.y - circle1.position.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  return distance <= circle1.radius + circle2.radius;
+}
+
+

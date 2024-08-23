@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "mapaGia.tmx",
+    "activeFile": "Shadow.tsx",
     "expandedProjectPaths": [
     ],
     "fileStates": {
@@ -46,13 +46,14 @@
     },
     "last.exportedFilePath": "/Users/angelalbertobernechea/Desktop/ejemploReact/juego/src/tiled",
     "last.imagePath": "/Users/angelalbertobernechea/Desktop/ejemploReact/juego/public/tailmap",
+    "map.height": 40,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
     "map.lastUsedFormat": "tmx",
+    "map.width": 60,
     "openFiles": [
         "Grass.tsx",
         "Wall.tsx",
         "Plant.tsx",
-        "mapaGia.tmx",
         "Ground.tsx",
         "ColitionMark.tsx",
         "ShadowPlant.tsx",
@@ -63,10 +64,10 @@
         "Grass.tsx",
         "Wall.tsx",
         "Plant.tsx",
-        "Shadow.tsx",
-        "ShadowPlant.tsx",
-        "ColitionMark.tsx",
         "Ground.tsx",
+        "ColitionMark.tsx",
+        "ShadowPlant.tsx",
+        "Shadow.tsx",
         "mapaGia.tmx"
     ],
     "tileset.lastUsedFormat": "tsx"

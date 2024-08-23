@@ -1,10 +1,11 @@
 import {  createContext, useContext, useEffect, useState } from "react";
-import Player from "../componentes/MainGame/js/Class";
+
 import Background from "../componentes/MainGame/js/background";
+import { MainGame } from "../componentes/MainGame/js/gameClass";
+import Player from "../componentes/MainGame/js/Player";
+import { NPC } from "../componentes/MainGame/js/Class";
 // import mundo0 from "../js/colictions/colictions.json";
-import mundo0 from "../tiled/mapaGia.json";
-import mundo2 from "../tiled/mapaGia2.json";
-import mundo3 from "../tiled/mapaGia3.json";
+
 
 
 
@@ -13,44 +14,42 @@ import mundo3 from "../tiled/mapaGia3.json";
 
 const GameContext = createContext({})
 
+const npc = new NPC({ position: { x: 164, y: 164 } });
+
+const metroid = new NPC({ position: { x: 104, y: 134 } ,
+  img:"public/enemy/larvaMetroid.png",
+  frameWidth: 120, frameHeight:  120, maxFrame: 4, tag:"metroid"
+
+});
+
+const game = new MainGame({isDev:true})
 
 
-const allWords = [
-  new Background({playerPosition:{x:32,y:64},resourse:mundo0} ),
-  new Background({playerPosition:{x:122,y:64},resourse:mundo2} ),
-  new Background({playerPosition:{x:32,y:364},resourse:mundo3} ),  
 
-]
+export const player = new Player({ position:{x:32,y:64}})
 
-console.log('allWords',allWords);
-
+game.addEntity(npc)
+game.addEntity(metroid)
+game.addEntity(player)
 
 
 
 export const GameContextProvider = ({children})=>{
- const [isDev, setIsDev] = useState(false)
- const [mundoIndex, setMundoIndex] = useState(2)
+ const [isDev, setIsDev] = useState(true)
 
 
- const mundo = allWords[mundoIndex]  //new Background({resourse:mundo0} )
 
- const player = new Player({ position:{x:32,y:64},mundo})
+
+ 
 
  const changeMundo = ()=>{
-  if(mundoIndex + 1 > allWords.length - 1){
-    setMundoIndex(0)
-  }else{
-    setMundoIndex(mundoIndex + 1)
-  }
-  
 
-  player.mundo = allWords[mundoIndex]
-  console.log('changeMundo',allWords[mundoIndex]);
+ 
   
  }
  
  useEffect(()=>{
-  player.isDev = isDev
+  game.isDev = isDev
 
 
   player.speed =  isDev ? 5 : 2
@@ -62,7 +61,7 @@ export const GameContextProvider = ({children})=>{
   const value  = {
     hola:"jjja",
     player,
-    mundo,
+    game,
     setIsDev,isDev ,changeMundo
 
     
