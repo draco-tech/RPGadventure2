@@ -4,13 +4,13 @@ import { IDLE, RUNNING } from "./playerState";
 
 class Player extends MainCharacter {
   constructor({ position, mundo , }) {
-    super({ position, mundo ,states:[IDLE,RUNNING]  });
-
+    super({ position, mundo ,allstates:[IDLE,RUNNING]  });
+    this.speed = 5
     this.camera = {
       x: this.position.x,
       y: this.position.y,
-      w: 300,
-      h: 300,
+      w: 500,
+      h: 500,
       isFollowing: true,
       moveX: 0,
       moveY: 0,

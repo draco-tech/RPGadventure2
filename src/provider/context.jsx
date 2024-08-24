@@ -4,6 +4,8 @@ import Background from "../componentes/MainGame/js/background";
 import { MainGame } from "../componentes/MainGame/js/gameClass";
 import Player from "../componentes/MainGame/js/Player";
 import { NPC } from "../componentes/MainGame/js/Class";
+import { Pokemon } from "../componentes/MainGame/js/pokemon/Pokemon";
+
 // import mundo0 from "../js/colictions/colictions.json";
 
 
@@ -14,23 +16,41 @@ import { NPC } from "../componentes/MainGame/js/Class";
 
 const GameContext = createContext({})
 
-const npc = new NPC({ position: { x: 164, y: 164 } });
-
-const metroid = new NPC({ position: { x: 104, y: 134 } ,
+const metroidStup = {
+  position: { x:  64, y: 134 },
   img:"public/enemy/larvaMetroid.png",
   frameWidth: 120, frameHeight:  120, maxFrame: 4, tag:"metroid"
+}
 
-});
 
-const game = new MainGame({isDev:true})
-
+const charizard = new Pokemon({ position: { x: 164, y: 164 },
+img:"public/pokemon/006.png", tag:"charizard"
+})
 
 
 export const player = new Player({ position:{x:32,y:64}})
 
-game.addEntity(npc)
-game.addEntity(metroid)
-game.addEntity(player)
+
+const allEntentys =  [
+  
+
+  player,
+  charizard,
+  // new NPC(
+  // metroidStup
+  // ),
+
+]
+
+const game = new MainGame({isDev:true})
+
+
+allEntentys.forEach(entity =>{
+  game.addEntity(entity)
+})
+
+
+
 
 
 

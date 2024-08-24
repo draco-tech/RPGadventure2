@@ -34,11 +34,14 @@ export class MainGame {
   }
   addEntity(entity) {
     this.entities.push(entity);
+  
+    
   }
   update(c,deltaTime) {
     this.entities
     .sort((a , b ) => a.position.y - b.position.y )  
     .forEach((entity) => {
+    
       entity.mundo = this.currentWorld
       entity.isDev = this.isDev
       entity.update(c, deltaTime ,  this.entities ,this.canvas,);

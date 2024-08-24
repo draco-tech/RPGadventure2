@@ -14,12 +14,8 @@ export class State {
     this.player = player;
   }
 
-  enter() {
-    console.log("enter", this.state);
-  }
-  exit() {
-    console.log("exit", this.state);
-  }
+  enter() {}
+  exit() {}
 }
 
 export class IDLE extends State {
@@ -36,7 +32,6 @@ export class IDLE extends State {
           character: this.player,
           nextState: states.RUNNING,
           lastDercion: this.player.lastDercion,
-          frameY:acctionsSprite.run,
           speedY: -this.player.speed,
         });
 
@@ -46,7 +41,6 @@ export class IDLE extends State {
           character: this.player,
           nextState: states.RUNNING,
           lastDercion: this.player.lastDercion,
-          frameY:acctionsSprite.run,
           speedY: this.player.speed,
         });
 
@@ -56,7 +50,6 @@ export class IDLE extends State {
           character: this.player,
           nextState: states.RUNNING,
           lastDercion: "left",
-          frameY: acctionsSprite.run,
           speedX: -this.player.speed,
         });
         break;
@@ -65,7 +58,6 @@ export class IDLE extends State {
           character: this.player,
           nextState: states.RUNNING,
           lastDercion: "right",
-          frameY:acctionsSprite.run,
           speedX: this.player.speed,
         });
 
@@ -80,7 +72,9 @@ export class RUNNING extends State {
   constructor(player) {
     super("RUNNING", player);
   }
-  enter(player) {}
+  enter(player) {
+    this.player.frameY = acctionsSprite.run;
+  }
   handleKeyDown(event) {
    
 
@@ -90,7 +84,7 @@ export class RUNNING extends State {
           character: this.player ,
           nextState: states.RUNNING,
           lastDercion: this.player.lastDercion,
-          frameY:acctionsSprite.run,
+
           speedY: -this.player.speed,
         });
 
@@ -100,7 +94,6 @@ export class RUNNING extends State {
           character:  this.player,
           nextState: states.RUNNING,
           lastDercion: this.player.lastDercion,
-          frameY:acctionsSprite.run,
           speedY: this.player.speed,
         });
         break;
@@ -109,7 +102,6 @@ export class RUNNING extends State {
           character:  this.player,
           nextState: states.RUNNING,
           lastDercion: "left",
-          frameY: acctionsSprite.run,
           speedX: -this.player.speed,
         });
 
@@ -119,7 +111,7 @@ export class RUNNING extends State {
           character:  this.player,
           nextState: states.RUNNING,
           lastDercion: "right",
-          frameY: acctionsSprite.run,
+
           speedX: this.player.speed,
         });
 
@@ -140,7 +132,7 @@ export class RUNNING extends State {
           character:  this.player,
           nextState: states.IDLE,
           lastDercion: this.player.lastDercion,
-          frameY: acctionsSprite.idle,
+
         });
         break;
       case "ArrowLeft":
@@ -148,7 +140,7 @@ export class RUNNING extends State {
           character:  this.player,
           nextState: states.IDLE,
           lastDercion: "left",
-          frameY: acctionsSprite.idle,
+
         });
         break;
       case "ArrowRight":
@@ -156,7 +148,7 @@ export class RUNNING extends State {
           character:  this.player,
           nextState: states.IDLE,
           lastDercion: "right",
-          frameY: acctionsSprite.idle,
+
         });
         break;
     }
@@ -169,12 +161,10 @@ export function changeState({
   character,
   nextState,
   lastDercion,
-  frameY,
-  speedX = 0,
-  speedY = 0,
+  speedX = character.velocity.x,
+  speedY = character.velocity.y,
 }) {
   character.lastDercion = lastDercion;
-  character.frameY = frameY;
   character.velocity.x = speedX;
   character.velocity.y = speedY;
 
