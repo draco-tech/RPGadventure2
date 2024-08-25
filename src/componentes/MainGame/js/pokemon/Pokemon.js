@@ -1,20 +1,27 @@
 import { NPC } from "../Class";
+import { changeState } from "../playerState";
+import { detectCollisionCircle } from "../utils";
 
-import { PKM_CHASE, PKM_IDLE, PKM_PATROL } from "./pokemonStaes";
+import { npcStates, PKM_CHASE, PKM_IDLE, PKM_PATROL } from "./pokemonStaes";
 
 
 export  class Pokemon extends NPC {
-  constructor({ position, img, frameWidth = 178, frameHeight= 178 }) {
+  constructor({ position , allimages, frameWidth = 178, frameHeight= 178 , tag}) {
+    
     super({
       position,
-      img,
+      // img: "public/pokemon/" + allimages[0] + ".png",
       frameWidth,
       frameHeight,
-      tag: "pokemon",
+      tag,
       allstates: [PKM_IDLE, PKM_PATROL, PKM_CHASE],
     })
     this.position = position;
-    this.img = img;
+    this.allimages = allimages
+    this.imgIndex = 0
+    this.sprite = allimages.map(_ => new Image());
+    // this.sprite[this.imgIndex].src = "public/pokemon/" + allimages[this.imgIndex] + ".png";
+    this.sprites = allimages.map((img , ind) => this.sprite[ind].src =  "public/pokemon/" + img + ".png" ) 
     this.frameWidth = frameWidth;
     this.frameHeight = frameHeight;
      //maxFrame;
@@ -22,21 +29,59 @@ export  class Pokemon extends NPC {
      this.frameY = 2
     this.selectedFrameY = 2 ;
     this.maxFrame = this.frameY + 1
-    this.radius = 50; // NPC_IDLE, NPC_PATROL, NPC_CHASE  //
-    this.tag = "enemy";
+    this.radius = 50; 
     this.speed = 2;
     this.isDev = false;
     this.fps = 14;
     this.timeOfInterval = 4000;
     this.frameInterval = this.timeOfInterval  / this.fps;
-    console.log(' this.states', this.states);
+    this.isEated = false
+    this.pokemonEated = 0
+    this.imgToChow = this.sprite[this.imgIndex] 
+    this.pokemonToEvleve = 0
+   
+    
     
 
   }
   update(c, deltaTime, entities) {
     super.update(c, deltaTime, entities);
+    this.changeSprite(this.velocity);
     
+  }
+  changeSprite(dirección) {
+    const x = dirección.x === 0 ? 0 : dirección.x > 0 ? 1 : -1;
+    const y = dirección.y === 0 ? 0 : dirección.y > 0 ? 1 : -1;
+
+    const direcciónKey = `${x},${y}`;
+    switch (direcciónKey) {
+      // right
+      case "1,0":
+      case "1,1":
+      case "1,-1":
+        this.flipSprite("right");
+        break;
     
+      // down
+      case "0,1":
+        this.flipSprite('down');
+        break;
+    
+      // left
+      case "-1,0":
+      case "-1,1":
+      case "-1,-1":
+        this.flipSprite("left");
+        break;
+    
+      // up
+      case "0,-1":
+        this.flipSprite('up');
+        break;
+    
+      default:
+        return;
+    }
   }
   flipSprite(dirección) {
     switch (dirección) {
@@ -75,7 +120,7 @@ export  class Pokemon extends NPC {
 
     // Ajustar la posición en X para que la imagen se pinte correctamente si está invertida
     c.drawImage(
-      this.sprite,
+      this.imgToChow,
       this.frameX * this.frameWidth,
       this.frameY * this.frameHeight,
       this.frameWidth,
@@ -88,5 +133,85 @@ export  class Pokemon extends NPC {
 
 
 
-  }  
+  } 
+  onCollision(other) {
+    // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
+    // Manejar la colisión de alguna manera
+    //other.this.isEated = true
+    if (this.currentState.state !== npcStates.PKM_CHACE) {
+      changeState({
+        character: this,
+        nextState: npcStates.PKM_CHACE,
+        speedY: 0,
+      });
+      this.currentState?.chasePlayer(other);
+    } 
+  }
+  releaseCollision(other){
+    
+  }
+  pokemonRelease(pokemon){
+    
+      
+      changeState({
+        character: this,
+        nextState: npcStates.PKM_IDLE,
+        speedY: 0,
+      });
+
+      
+    
+  }
+  onCollicioBlockHorizontalLeft(collisionBlock) {
+    this.velocity.x = 0;
+    this.position.x = collisionBlock.position.x + collisionBlock.width + 2; // Ajuste de posición para alinearse correctamente al borde del bloque
+    this.pokemonRelease(collisionBlock)
+  }
+  onCollicioBlockHorizontalRight(collisionBlock) {
+    this.velocity.x = 0;
+    this.position.x = collisionBlock.position.x - this.width - 2; // Ajuste de posición para alinearse correctamente al borde del bloque
+    this.pokemonRelease(collisionBlock)
+  }
+  onCollicioBlockVerticalTop(collisionBlock) {
+    this.velocity.y = 0;
+    this.position.y = collisionBlock.position.y - this.height - 2; // Ajuste de posición para alinearse correctamente al borde del bloque
+    this.pokemonRelease(collisionBlock)
+  }
+  onCollicioBlockVerticalBottom(collisionBlock) {
+    this.velocity.y = 0;
+    this.position.y = collisionBlock.position.y + collisionBlock.height + 2; // Ajuste de posición para alinearse correctamente al borde del bloque
+    this.pokemonRelease(collisionBlock)
+  }
+  pokemonEat(){
+ 
+    
+    if (this.imgIndex+ 1  <   this.allimages.length  ){
+      this.imgIndex ++
+      
+      
+    }
+   
+   
+    this.speed += 5
+    this.pokemonEated ++
+  }
+  checkEntetiesCollisions(entities) {
+    // Verificar colisiones con otras entidades
+    entities?.forEach((other) => {
+      if (other !== this) {
+        this.checkCollisionsBlocksHorizontal([other]);
+        this.checkCollisionsBlocksVertical([other]);
+        // if (   detectCollisionCircle(this, other)) {
+        
+        //    this.onCollision(other);
+        // }else{
+        //   this.releaseCollision(other);
+        // }
+      }
+
+      
+    });
+  }
+  
+  
 }

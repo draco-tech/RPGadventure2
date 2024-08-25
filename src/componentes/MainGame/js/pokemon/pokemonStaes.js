@@ -75,21 +75,23 @@ export class PKM_PATROL extends NPC_STATE {
   }
 
   update(deltaTime) {}
+  getRandomVelocityDiagonal(speed) {
+    const randomValue = () => (Math.random() > 0.66 ? speed : (Math.random() < 0.5 ? -speed : 0));
+  
+    return {
+      x: randomValue(),
+      y: randomValue(),
+    };
+  }
+
+
   getRandomVelocity(speed) {
     // Genera una velocidad aleatoria para X
-    const randomX =
-      Math.random() > 0.66 ? speed : Math.random() < 0.5 ? -speed : 0;
-
+    const randomX = Math.random() > 0.66 ? speed : (Math.random() < 0.5 ? -speed : 0);
+  
     // Si la velocidad en X no es cero, entonces Y debe ser cero
-    const randomY =
-      randomX !== 0
-        ? 0
-        : Math.random() > 0.66
-        ? speed
-        : Math.random() < 0.5
-        ? -speed
-        : 0;
-
+    const randomY = randomX !== 0 ? 0 : (Math.random() > 0.66 ? speed : (Math.random() < 0.5 ? -speed : 0));
+  
     return {
       x: randomX,
       y: randomY,
@@ -135,6 +137,6 @@ export class PKM_CHASE extends NPC_STATE {
   exit() {
     super.exit();
     this.player.radius = 50;
-    this.player.speed = 1;
+    this.player.speed = this.player.speed;
   }
 }

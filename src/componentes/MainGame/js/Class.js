@@ -72,8 +72,11 @@ class MainCharacter {
       if (other !== this) {
         this.checkCollisionsBlocksHorizontal([other]);
         this.checkCollisionsBlocksVertical([other]);
-        if (detectCollisionCircle(this, other)) {
-          this.onCollision(other);
+
+
+        if ( other.tag !== this.tag &&   detectCollisionCircle(this, other)) {
+        
+           this.onCollision(other);
         }else{
           this.releaseCollision(other);
         }
@@ -264,10 +267,12 @@ export class NPC extends MainCharacter {
     frameHeight = 32,
     maxFrame = 5,
     allstates = [NPC_IDLE, NPC_PATROL, NPC_CHASE]  ,
+    tag
   }) {
     super({
       position,
       allstates,
+      tag
     });
     this.sprite.src = img;
     this.velocity.x = 0;
@@ -278,7 +283,6 @@ export class NPC extends MainCharacter {
 
     this.fps = 2;
     this.radius = 50;
-    this.tag = "enemy";
     this.speed = 2;
     this.currentState.enter();
     this.isDev = false;
@@ -348,9 +352,7 @@ export class NPC extends MainCharacter {
         speedY: 0,
       });
       this.currentState?.chasePlayer(other);
-    } else {
-      console.log("ya estas persiguiendo");
-    }
+    } 
   }
   releaseCollision(other){
     
