@@ -48,7 +48,7 @@ export class MainGame {
     
   }
   update(c,deltaTime) {
-    this.entities =  this.entities.filter(pokemon => ! pokemon.isEated)
+    // this.entities =  this.entities.filter(pokemon => ! pokemon.isEated)
     this.entities
     .sort((a , b ) => a.position.y - b.position.y )  
     .forEach((entity) => {

@@ -1,0 +1,1 @@
+class PlayerOf extends MainCharacter {}

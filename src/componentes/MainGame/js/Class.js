@@ -1,5 +1,3 @@
-import { NPC_CHASE, NPC_IDLE, NPC_PATROL, npcStates } from "./npc/npcState";
-import { changeState } from "./playerState";
 import {
   checkForCollision,
   createObjectsFrom2D,
@@ -40,7 +38,7 @@ class MainCharacter {
     this.frameTime = 0;
     this.fps = 14;
     this.timeOfInterval = 1000;
-    this.frameInterval = this.timeOfInterval  / this.fps;
+    this.frameInterval = this.timeOfInterval / this.fps;
     this.collisionBlocks = [];
     this.radius = 15;
   }
@@ -48,7 +46,7 @@ class MainCharacter {
     this.checkCanvasBoundaries();
     this.playerIsMoved();
     this.checkEntetiesCollisions(entities);
-    this.drawSprite(c,deltaTime)
+    this.drawSprite(c, deltaTime);
 
     this.draw(c);
     if (this.velocity.x < -1) {
@@ -73,16 +71,12 @@ class MainCharacter {
         this.checkCollisionsBlocksHorizontal([other]);
         this.checkCollisionsBlocksVertical([other]);
 
-
-        if ( other.tag !== this.tag &&   detectCollisionCircle(this, other)) {
-        
-           this.onCollision(other);
-        }else{
+        if (other.tag !== this.tag && detectCollisionCircle(this, other)) {
+          this.onCollision(other);
+        } else {
           this.releaseCollision(other);
         }
       }
-
-      
     });
   }
   draw(c) {
@@ -98,33 +92,23 @@ class MainCharacter {
       Math.PI * 2
     );
     c.fill();
-    
-    
+
     if (this.isDev) {
       c.fillStyle = "#f000ff50";
       c.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
   }
-  drawSprite(c,deltaTime) {
+  drawSprite(c, deltaTime) {
     //sprrite animation
     if (this.frameTime > this.frameInterval) {
       this.frameTime = 0;
       if (this.frameX < this.maxFrame) this.frameX++;
       else this.frameX = 0;
     } else this.frameTime += deltaTime;
-
-
-
-
-
-
     c.save(); // Guardar el estado actual del contexto
-
     // Invertir el eje X si `flipToLeft` es verdadero this.flipToLeft ||
     let shouldFlip = this.flipToLeft;
-
     c.scale(shouldFlip ? -1 : 1, 1); // Invertir el eje X si `flipToLeft` es verdadero
-
     // Ajustar la posición en X para que la imagen se pinte correctamente si está invertida
     c.drawImage(
       this.sprite,
@@ -141,7 +125,6 @@ class MainCharacter {
     );
 
     c.restore(); // Restaurar el estado del contexto
-
   }
   paintStates({ c, msj, x, y }) {
     c.font = "16px Arial"; // Tamaño y fuente del texto
@@ -252,109 +235,7 @@ class MainCharacter {
     // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
     // Manejar la colisión de alguna manera
   }
-  releaseCollision(other){
-
-  }
+  releaseCollision(other) {}
 }
 
 export default MainCharacter;
-
-export class NPC extends MainCharacter {
-  constructor({
-    position,
-    img = "public/blueNinja/ninjaBluAll.png",
-    frameWidth = 32,
-    frameHeight = 32,
-    maxFrame = 5,
-    allstates = [NPC_IDLE, NPC_PATROL, NPC_CHASE]  ,
-    tag
-  }) {
-    super({
-      position,
-      allstates,
-      tag
-    });
-    this.sprite.src = img;
-    this.velocity.x = 0;
-    this.velocity.y = 0;
-    this.frameWidth = frameWidth;
-    this.frameHeight = frameHeight;
-    this.maxFrame = maxFrame;
-
-    this.fps = 2;
-    this.radius = 50;
-    this.speed = 2;
-    this.currentState.enter();
-    this.isDev = false;
-  }
-
-  update(c, deltaTime, entities) {
-    if (this.velocity.x > 1) {
-      this.flipToLeft = false;
-    } else if (this.velocity.x < -1) {
-      this.flipToLeft = true;
-    }
-
-    super.update(c, deltaTime, entities);
-    this.currentState.update();
-
-    if (this.isDev) {
-      this.paintStates({
-        c,
-        msj: this.currentState.state,
-        x: this.position.x - 5,
-        y: this.position.y - 20,
-      });
-      this.drawZone(c);
-    }
-  }
-  onCollisionCanvasHorizontal() {
-    this.velocity.x = this.velocity.x > 0 ? -this.speed : this.speed;
-  }
-  onCollisionCanvasVertical() {
-    this.velocity.y = -this.velocity.y;
-  }
-
-  onCollicioBlockHorizontalLeft(collisionBlock) {
-    super.onCollicioBlockHorizontalLeft(collisionBlock);
-    this.velocity.x = this.velocity.y > 0 ? this.speed : -this.speed; // Invertir la dirección en el eje X
-    // this.position.x = collisionBlock.position.x - this.width - 1; // Ajuste de posición
-  }
-  onCollicioBlockHorizontalRight(collisionBlock) {
-    super.onCollicioBlockHorizontalRight(collisionBlock);
-    setTimeout(() => {
-      this.velocity.x = this.velocity.y > 0 ? this.speed : -this.speed; // Invertir la dirección en el eje X
-    }, 10);
-
-    // this.position.x = collisionBlock.position.x - this.width - 1; // Ajuste de posición
-  }
-  onCollicioBlockVerticalTop(collisionBlock) {
-    super.onCollicioBlockVerticalTop(collisionBlock);
-
-    this.velocity.y = -this.speed; // Invertir la dirección en el eje Y
-    // this.position.y = collisionBlock.position.y + collisionBlock.height + 1;
-  }
-  onCollicioBlockVerticalBottom(collisionBlock) {
-    super.onCollicioBlockVerticalBottom(collisionBlock);
-    this.velocity.y = this.speed; // Invertir la dirección en el eje Y
-    // this.position.y = collisionBlock.position.y - this.height - 1;
-  }
-
-  onCollision(other) {
-    // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
-    // Manejar la colisión de alguna manera
-    if (this.currentState.state !== npcStates.NPC_CHACE) {
-      changeState({
-        character: this,
-        nextState: npcStates.NPC_CHACE,
-        lastDercion: this.lastDercion,
-        frameY: this.frameY,
-        speedY: 0,
-      });
-      this.currentState?.chasePlayer(other);
-    } 
-  }
-  releaseCollision(other){
-    
-  }
-}

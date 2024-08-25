@@ -18,7 +18,7 @@ class Player extends MainCharacter {
     this.keyPress = false;
     this.mundo = mundo;
     this.tag = "player"
-    this.sprite.src = "public/blueNinja/grogGreenAll.png";
+    this.sprite.src = "blueNinja/grogGreenAll.png";
     this.isDev = false
    
    
@@ -28,7 +28,6 @@ class Player extends MainCharacter {
   update(c, deltaTime , entities, canvas ) {
     super.update(c, deltaTime, entities);
     this.input();
-
     this.updateCamera({ c, canvas });
 
     if (this.isDev) {
@@ -44,7 +43,7 @@ class Player extends MainCharacter {
     
     }
   }
- 
+  
  
   updateCamera({ c, canvas }) {
    
