@@ -18,8 +18,7 @@ export class NPC extends MainCharacter {
       tag,
     });
     this.sprite.src = img;
-    this.velocity.x = 0;
-    this.velocity.y = 0;
+    this.velocity = { x: 0, y: 0 };
     this.frameWidth = frameWidth;
     this.frameHeight = frameHeight;
     this.maxFrame = maxFrame;

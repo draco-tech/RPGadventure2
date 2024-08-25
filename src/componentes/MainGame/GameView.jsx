@@ -4,7 +4,7 @@ import useGameContext from "../../provider/context";
 import Joystick from "./componentes/Joystick";
 
 const GameView = () => {
-  const { game, isDev ,player } = useGameContext();
+  const { game, isDev, player } = useGameContext();
   const [refreshWindos, setRefreshWindos] = useState(false);
   const [orientation, setOrientation] = useState(
     window.screen.orientation.type
@@ -34,8 +34,7 @@ const GameView = () => {
 
     canvas.width = window.outerWidth - 30;
     canvas.height = window.outerHeight - 50;
-    game.canvas = canvas
-    
+    game.canvas = canvas;
 
     if (!canvas || !c) return;
 
@@ -50,14 +49,12 @@ const GameView = () => {
       // c.scale(2, 2)
 
       c.translate(player.camera.moveX, player.camera.moveY);
-    
-      // mundo.drawGrassField(c);
-        game.currentWorld.drawGrassField(c);
-          game.update(c, deltaTime);
-      //  player.update({ c, deltaTime, canvas });
-       game.currentWorld.drawFrontPlayer(c);
 
-     
+      // mundo.drawGrassField(c);
+      game.currentWorld.drawGrassField(c);
+      game.update(c, deltaTime);
+      //  player.update({ c, deltaTime, canvas });
+      game.currentWorld.drawFrontPlayer(c);
 
       c.restore();
 
@@ -79,12 +76,14 @@ const GameView = () => {
   return (
     <section style={{ position: "relative" }}>
       <p
-      onClick={() => {
-        console.log("holllaaa");
-        game.changeWorldIndex(2)
-      }}
-      
-      className="w-screen bg-blue-500">holllaaa</p>
+        onClick={() => {
+          console.log("holllaaa");
+          game.changeWorldIndex(2);
+        }}
+        className="w-screen bg-blue-500"
+      >
+        holllaaa
+      </p>
       <canvas ref={canvasRef} className="card-container" id="canvas" />
       <Joystick {...{ player }} />
     </section>

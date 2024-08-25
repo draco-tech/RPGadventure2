@@ -1,11 +1,10 @@
 import MainCharacter from "./Class";
 import { IDLE, RUNNING } from "./playerState";
 
-
 class Player extends MainCharacter {
-  constructor({ position, mundo , }) {
-    super({ position, mundo ,allstates:[IDLE,RUNNING]  });
-    this.speed = 5
+  constructor({ position, mundo }) {
+    super({ position, mundo, allstates: [IDLE, RUNNING] });
+    this.speed = 5;
     this.camera = {
       x: this.position.x,
       y: this.position.y,
@@ -17,37 +16,36 @@ class Player extends MainCharacter {
     };
     this.keyPress = false;
     this.mundo = mundo;
-    this.tag = "player"
+    this.tag = "player";
     this.sprite.src = "blueNinja/grogGreenAll.png";
-    this.isDev = false
-   
-   
-   
+    this.isDev = false;
+    this.socketID = null;
+    this.socket = null;
   }
 
-  update(c, deltaTime , entities, canvas ) {
+  update(c, deltaTime, entities, canvas) {
     super.update(c, deltaTime, entities);
     this.input();
     this.updateCamera({ c, canvas });
 
     if (this.isDev) {
-      this.paintStates({c , msj:this.currentState.state, x:this.position.x-5, y:this.position.y-10});
-      this.drawZone(c)
+      this.paintStates({
+        c,
+        msj: this.currentState.state,
+        x: this.position.x - 5,
+        y: this.position.y - 10,
+      });
+      this.drawZone(c);
       this.collisionBlocks.forEach((collisionBlock) => {
         collisionBlock?.update(c);
       });
       //paint camera
       c.fillStyle = "#0ff00040";
       c.fillRect(this.camera.x, this.camera.y, this.camera.w, this.camera.h);
-    
-    
     }
   }
-  
- 
+
   updateCamera({ c, canvas }) {
-   
-     
     //!player is on the top
     this.shouldPanCameraUp();
     // !player is on the left
@@ -129,6 +127,13 @@ class Player extends MainCharacter {
       this.currentState.handleKeyDown(event);
 
       this.keyPress = true;
+      if (this.socket != null) {
+        this.socket.emit("playerMove", {
+          socketID: this.socketID,
+          position: this.position,
+          lastDercion: this.lastDercion,
+        });
+      }
     });
     document.addEventListener("keyup", (event) => {
       this.currentState.handleKeyUp(event);
@@ -137,7 +142,7 @@ class Player extends MainCharacter {
   }
   onCollicioBlockHorizontalLeft(collisionBlock) {
     super.onCollicioBlockHorizontalLeft(collisionBlock);
-   }
+  }
   onCollicioBlockHorizontalRight(collisionBlock) {
     super.onCollicioBlockHorizontalRight(collisionBlock);
   }
@@ -147,7 +152,6 @@ class Player extends MainCharacter {
   onCollicioBlockVerticalBottom(collisionBlock) {
     super.onCollicioBlockVerticalBottom(collisionBlock);
   }
-
 }
 
 export default Player;

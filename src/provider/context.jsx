@@ -6,6 +6,7 @@ import { MainGame } from "../componentes/MainGame/js/gameClass";
 import Player from "../componentes/MainGame/js/Player";
 import { Pokemon } from "../componentes/MainGame/js/pokemon/Pokemon";
 import { NPC } from "../componentes/MainGame/js/npc/NPC";
+import PlayerOf from "../componentes/MainGame/js/playerOf/playerOf";
 
 // import mundo0 from "../js/colictions/colictions.json";
 const socket = io("http://localhost:3000/");
@@ -77,8 +78,8 @@ const metroidStup = {
   maxFrame: 4,
   tag: "metroid",
 };
-
-export const player = new Player({ position: ramdomePosition() });
+//ramdomePosition()
+export const player = new Player({ position: { x: 164, y: 164 } });
 
 const allEntentys = [
   player,
@@ -96,6 +97,10 @@ const allEntentys = [
   // new NPC(
   // metroidStup
   // ),
+  // new PlayerOf({
+  //   position: { x: 164, y: 164 },
+  //   socketID: "no avile",
+  // }),
 ];
 
 const game = new MainGame({ isDev: true });
@@ -119,17 +124,33 @@ export const GameContextProvider = ({ children }) => {
       console.log(player.socketID);
 
       player.socketID = socket.id;
+      player.socket = socket;
       socket.emit("find", { socketID: socket.id, position: player.position });
     });
     socket.on("allplayers", (allData) => {
       allData.forEach((entity) => {
-        if (entity.socketID !== socket.id) {
-          const npc = new NPC({ position: entity.position });
+        if (entity.socketID != socket.id) {
+          const npc = new PlayerOf({
+            position: entity.position,
+            socketID: entity.socketID,
+          });
           npc.socketID = entity.socketID;
-          console.log("noooo", npc);
           game.addEntity(npc);
         }
       });
+    });
+
+    socket.on("allplayersRefresh", (playerMoved) => {
+      let oldPlayer = game.entities.find(
+        (pla) => pla.socketID == playerMoved.socketID
+      );
+      const ollAllPlayer = game.entities.filter(
+        (allPlayer) => allPlayer.socketID != playerMoved.socketID
+      );
+      oldPlayer.position = playerMoved.position;
+      oldPlayer.lastDercion = playerMoved.lastDercion;
+
+      game.entities = [...ollAllPlayer, oldPlayer];
     });
   }
 
