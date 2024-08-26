@@ -1,3 +1,9 @@
+const NPC = require("./src/Class.js");
+
+let prueba = new NPC(64, 64, 1);
+
+console.log("NPC", prueba);
+
 const express = require("express");
 const http = require("http");
 const path = require("path");
@@ -15,39 +21,42 @@ const currentDir = __dirname;
 // Cambia al directorio superior y luego a 'cliente/dist/index'
 const targetPath = path.join(currentDir, "..", "dist", "index.html");
 
-let allPlayers = [];
+let gamePlayers = {};
+let gameEntetys = [prueba];
+
 io.on("connection", (socket) => {
+  // // Ciclo principal del juego en el servidor
+  setInterval(() => {
+    const deltaTime = 16.66; // Aproximadamente 60 FPS
+    // updateGameState(deltaTime);
+    io.emit("update", [...Object.values(gamePlayers)]);
+    // Enviar estado actualizado a todos los clientes
+    // prueba.update()
+  }, 20 / 10);
+
   socket.emit("start", socket.id);
+  gamePlayers[socket.id] = { socketID: socket.id };
 
   socket.once("find", (data) => {
-    allPlayers.push(data);
-
-    console.log("data", data);
-
-    io.emit("allplayers", allPlayers);
+    gamePlayers[data.socketID] = {
+      ...gamePlayers[data.socketID],
+      position: data.position,
+    };
+    io.emit("allplayers", [...Object.values(gamePlayers)]);
+    io.emit("addEntity", gameEntetys);
   });
+
   socket.on("playerMove", (playerMoved) => {
-    const actualizePlayer = allPlayers.filter(
-      (players) => players.socketID !== playerMoved.socketID
-    );
-
-    allPlayers = [...actualizePlayer, playerMoved];
-    io.emit("allplayersRefresh", playerMoved);
+    gamePlayers[socket.id] = { ...gamePlayers[socket.id], ...playerMoved };
+    // io.emit("allplayersRefresh", gamePlayers[socket.id]);
+    // io.emit("update", [...Object.values(gamePlayers)]);
   });
-
-  // socket.on("whiteMoved", (data) => {
-
-  //   io.emit("whiteActualize", data);
-  // });
 
   socket.on("disconnect", () => {
-    console.log("user disconnected", allPlayers);
+    delete gamePlayers[socket.id];
 
-    const restPlayer = allPlayers.filter((p) => p.socketID !== socket.id);
-
-    allPlayers = restPlayer;
-
-    console.log("allPlayers", allPlayers);
+    console.log("user disconnected", gamePlayers);
+    io.emit("removePlayer", socket.id);
   });
 });
 

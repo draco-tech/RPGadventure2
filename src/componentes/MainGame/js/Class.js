@@ -9,8 +9,8 @@ class MainCharacter {
     this.isDev = isDev;
     this.scale = 1;
     this.position = {
-      x: position.x,
-      y: position.y,
+      x: position?.x || 164,
+      y: position?.y || 164,
     };
     this.tag = tag;
     this.sizeSprite = 42;
@@ -126,6 +126,7 @@ class MainCharacter {
 
     c.restore(); // Restaurar el estado del contexto
   }
+  turnFlipSprite() {}
   paintStates({ c, msj, x, y }) {
     c.font = "16px Arial"; // Tamaño y fuente del texto
     c.fillStyle = "blue"; // Color del texto

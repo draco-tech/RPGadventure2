@@ -17,14 +17,21 @@ class PlayerOf extends MainCharacter {
       frameHeight,
       maxFrame,
     });
-    this.sprite.src = "blueNinja/ninjaBluAll.png";
+    this.sprite.src = "blueNinja/grogGreenAll.png";
     this.socketID = socketID;
-
+    this.keyPress = false;
     this.currentState.enter();
   }
 
   update(c, deltaTime, entities) {
     super.update(c, deltaTime, entities);
+
+    if (this.keyPress) {
+      this.frameY = 1;
+    } else {
+      this.frameY = 0;
+    }
+
     this.paintStates({
       c,
       msj: this.currentState.state,

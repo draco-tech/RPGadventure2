@@ -25,8 +25,17 @@ class Player extends MainCharacter {
 
   update(c, deltaTime, entities, canvas) {
     super.update(c, deltaTime, entities);
-    this.input();
+    // this.input();
     this.updateCamera({ c, canvas });
+
+    if (this.socket != null) {
+      this.socket.emit("playerMove", {
+        socketID: this.socketID,
+        position: this.position,
+        lastDercion: this.lastDercion,
+        keyPress: this.keyPress,
+      });
+    }
 
     if (this.isDev) {
       this.paintStates({
@@ -127,13 +136,6 @@ class Player extends MainCharacter {
       this.currentState.handleKeyDown(event);
 
       this.keyPress = true;
-      if (this.socket != null) {
-        this.socket.emit("playerMove", {
-          socketID: this.socketID,
-          position: this.position,
-          lastDercion: this.lastDercion,
-        });
-      }
     });
     document.addEventListener("keyup", (event) => {
       this.currentState.handleKeyUp(event);

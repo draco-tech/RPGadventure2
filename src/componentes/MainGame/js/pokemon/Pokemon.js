@@ -4,7 +4,7 @@ import { detectCollisionCircle } from "../utils";
 
 import { npcStates, PKM_CHASE, PKM_IDLE, PKM_PATROL } from "./pokemonStaes";
 
-export class Pokemon extends NPC {
+class Pokemon extends NPC {
   constructor({
     position,
     allimages,
@@ -196,3 +196,10 @@ export class Pokemon extends NPC {
     });
   }
 }
+
+// Exportación condicional
+if (typeof module !== "undefined" && typeof module.exports !== "undefined") {
+  module.exports = Pokemon; // Para Node.js
+} else {
+}
+export default Pokemon; // Para el navegador

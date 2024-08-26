@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import Background from "../componentes/MainGame/js/background";
 import { MainGame } from "../componentes/MainGame/js/gameClass";
 import Player from "../componentes/MainGame/js/Player";
-import { Pokemon } from "../componentes/MainGame/js/pokemon/Pokemon";
+import Pokemon from "../componentes/MainGame/js/pokemon/Pokemon.js";
 import { NPC } from "../componentes/MainGame/js/npc/NPC";
 import PlayerOf from "../componentes/MainGame/js/playerOf/playerOf";
 
@@ -94,9 +94,7 @@ const allEntentys = [
   // new Pokemon(spearow),
   // new Pokemon(ekans),
   // new Pokemon(pikachu),
-  // new NPC(
-  // metroidStup
-  // ),
+  // new NPC(metroidStup),
   // new PlayerOf({
   //   position: { x: 164, y: 164 },
   //   socketID: "no avile",
@@ -113,6 +111,9 @@ export const GameContextProvider = ({ children }) => {
   const [isDev, setIsDev] = useState(true);
 
   const changeMundo = () => {};
+  useEffect(() => {
+    player.input();
+  }, []);
 
   useEffect(() => {
     game.isDev = isDev;
@@ -129,28 +130,84 @@ export const GameContextProvider = ({ children }) => {
     });
     socket.on("allplayers", (allData) => {
       allData.forEach((entity) => {
-        if (entity.socketID != socket.id) {
-          const npc = new PlayerOf({
-            position: entity.position,
-            socketID: entity.socketID,
-          });
-          npc.socketID = entity.socketID;
-          game.addEntity(npc);
+        // Verificar que no sea el mismo socket.id
+        if (entity.socketID !== socket.id) {
+          // Verificar que el socketID no esté ya en game.entities
+          const entityExists = game.entities.some(
+            (pla) => pla.socketID === entity.socketID
+          );
+
+          // Si no existe, crear una nueva instancia
+          if (!entityExists) {
+            const npc = new PlayerOf({
+              position: entity.position,
+              socketID: entity.socketID,
+              keyPress: entity.keyPress,
+            });
+            game.addEntity(npc);
+          }
+        }
+      });
+    });
+    function interpolate(entity, targetPosition, deltaTime) {
+      entity.position.x += (targetPosition.x - entity.position.x) * deltaTime;
+      entity.position.y += (targetPosition.y - entity.position.y) * deltaTime;
+    }
+
+    socket.on("update", (updatedEntities) => {
+      updatedEntities.forEach((updatedEntity) => {
+        const entity = game.entities.find(
+          (e) => e.socketID === updatedEntity.socketID
+        );
+        if (entity && entity.socketID !== socket.id) {
+          interpolate(entity, updatedEntity.position, 0.05); // 0.1 es un factor de interpolación
+          // entity.position.x = updatedEntity.position.x;
+          // entity.position.y = updatedEntity.position.y;
+
+          entity.lastDirection = updatedEntity.lastDirection;
+          entity.flipToLeft =
+            updatedEntity.lastDercion === "left" ? true : false;
+          entity.keyPress = updatedEntity.keyPress;
         }
       });
     });
 
-    socket.on("allplayersRefresh", (playerMoved) => {
-      let oldPlayer = game.entities.find(
-        (pla) => pla.socketID == playerMoved.socketID
-      );
-      const ollAllPlayer = game.entities.filter(
-        (allPlayer) => allPlayer.socketID != playerMoved.socketID
-      );
-      oldPlayer.position = playerMoved.position;
-      oldPlayer.lastDercion = playerMoved.lastDercion;
+    // socket.on("update", (playerMoved) => {
+    //   playerMoved.forEach((updatedEntity) => {
+    //     // Verificar que no sea el mismo socket.id
+    //     if (updatedEntity.socketID !== socket.id) {
+    //       game.entities.forEach((entity) => {
+    //         if (entity.socketID === updatedEntity.socketID) {
+    //           // Actualiza las propiedades de la entidad
+    //           entity.position = updatedEntity.position;
+    //           entity.lastDercion = updatedEntity.lastDercion;
+    //           entity.flipToLeft =
+    //             updatedEntity.lastDercion === "left" ? true : false;
+    //         }
+    //       });
+    //     }
+    //   });
+    // });
 
-      game.entities = [...ollAllPlayer, oldPlayer];
+    // socket.on("update", (playerMoved) => {
+    //   let oldPlayer = game.entities.find(
+    //     (pla) => pla.socketID == playerMoved.socketID
+    //   );
+    //   const ollAllPlayer = game.entities.filter(
+    //     (allPlayer) => allPlayer.socketID != playerMoved.socketID
+    //   );
+    //   oldPlayer.position = playerMoved.position;
+    //   oldPlayer.lastDercion = playerMoved.lastDercion;
+    //   oldPlayer.flipToLeft = playerMoved.lastDercion === "left" ? true : false;
+
+    //   console.log("game.entities", game.entities);
+
+    //   game.entities = [...ollAllPlayer, oldPlayer];
+    // });
+
+    socket.on("removePlayer", (id) => {
+      const entities = game.entities.filter((entity) => entity.socketID !== id);
+      game.entities = entities;
     });
   }
 
