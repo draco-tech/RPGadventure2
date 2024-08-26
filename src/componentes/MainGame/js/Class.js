@@ -58,7 +58,7 @@ class MainCharacter {
     if (this.mundo) {
       // console.log('this.mundo.entities',this.mundo.entities);
 
-      this.collisionBlocks = createObjectsFrom2D(this.mundo.collectionBlocks); //, ...this.mundo.entities]
+      this.collisionBlocks = this.mundo.collectionBlocks; //, ...this.mundo.entities]
 
       this.checkCollisionsBlocksHorizontal(this.collisionBlocks);
       this.checkCollisionsBlocksVertical(this.collisionBlocks);

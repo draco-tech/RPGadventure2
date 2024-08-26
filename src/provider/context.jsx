@@ -107,10 +107,28 @@ allEntentys.forEach((entity) => {
   game.addEntity(entity);
 });
 
+const gameData = {
+  width: game.currentWorld.w,
+  height: game.currentWorld.h,
+  collectionBlocks: game.currentWorld.collectionBlocks,
+};
+
+fetch("http://localhost:4000/map", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(gameData),
+})
+  .then((response) => response.text())
+  .then((data) => console.log(data))
+  .catch((error) => console.error("Error:", error));
+
 export const GameContextProvider = ({ children }) => {
   const [isDev, setIsDev] = useState(true);
 
   const changeMundo = () => {};
+
   useEffect(() => {
     player.input();
   }, []);
@@ -171,39 +189,35 @@ export const GameContextProvider = ({ children }) => {
         }
       });
     });
+    socket.on("updateEntety", (dataEntey) => {
+      dataEntey.forEach((updatedEntity) => {
+        const entity = game.entities.find(
+          (e) => e.socketID === updatedEntity.id
+        );
+        entity.position = updatedEntity.position;
+      });
 
-    // socket.on("update", (playerMoved) => {
-    //   playerMoved.forEach((updatedEntity) => {
-    //     // Verificar que no sea el mismo socket.id
-    //     if (updatedEntity.socketID !== socket.id) {
-    //       game.entities.forEach((entity) => {
-    //         if (entity.socketID === updatedEntity.socketID) {
-    //           // Actualiza las propiedades de la entidad
-    //           entity.position = updatedEntity.position;
-    //           entity.lastDercion = updatedEntity.lastDercion;
-    //           entity.flipToLeft =
-    //             updatedEntity.lastDercion === "left" ? true : false;
-    //         }
-    //       });
-    //     }
-    //   });
-    // });
+      // console.log(dataEntey, "data");
+    });
 
-    // socket.on("update", (playerMoved) => {
-    //   let oldPlayer = game.entities.find(
-    //     (pla) => pla.socketID == playerMoved.socketID
-    //   );
-    //   const ollAllPlayer = game.entities.filter(
-    //     (allPlayer) => allPlayer.socketID != playerMoved.socketID
-    //   );
-    //   oldPlayer.position = playerMoved.position;
-    //   oldPlayer.lastDercion = playerMoved.lastDercion;
-    //   oldPlayer.flipToLeft = playerMoved.lastDercion === "left" ? true : false;
+    socket.once("addEntity", (allDataE) => {
+      console.log("entity", allDataE);
+      allDataE.forEach((entity) => {
+        // Verificar que el socketID no esté ya en game.entities
+        const entityExists = game.entities.some(
+          (pla) => pla.socketID === entity.socketID
+        );
 
-    //   console.log("game.entities", game.entities);
-
-    //   game.entities = [...ollAllPlayer, oldPlayer];
-    // });
+        // Si no existe, crear una nueva instancia
+        if (!entityExists) {
+          const npc = new PlayerOf({
+            position: entity.position,
+            socketID: entity.id,
+          });
+          game.addEntity(npc);
+        }
+      });
+    });
 
     socket.on("removePlayer", (id) => {
       const entities = game.entities.filter((entity) => entity.socketID !== id);

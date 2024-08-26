@@ -1,4 +1,4 @@
-import { parse2D } from "./utils";
+import { createObjectsFrom2D, parse2D } from "./utils";
 import imgData from "/tailmap/Wall.png";
 
 // Layers: Grass - Shadows  - Walls - Plants - TopPlayer - TopPlayer2 - Collictions
@@ -15,25 +15,26 @@ class Background {
     this.h = resourse.height * resourse.tileheight * this.scale;
     this.resourse = resourse;
     this.image.src = imgData;
-    this.frontPlayerField = ["TopPlayer" ,"TopPlayer2" ];
+    this.frontPlayerField = ["TopPlayer", "TopPlayer2"];
     this.interactiveField = ["Collictions"];
-    this.allFiledFileds =   [...this.frontPlayerField, ...this.interactiveField];
-    
-    
+    this.allFiledFileds = [...this.frontPlayerField, ...this.interactiveField];
+
     this.frontPlayerFielter = makeDifferntsLayers({
       layers: resourse.layers,
-      namesLayer: this.frontPlayerField
-    })
-    this.collectionBlocks = makeONELayer({
-      layers: resourse.layers,
-      name: "Collictions"
-    })
+      namesLayer: this.frontPlayerField,
+    });
+    this.collectionBlocks = createObjectsFrom2D(
+      makeONELayer({
+        layers: resourse.layers,
+        name: "Collictions",
+      })
+    );
 
     this.allFiledFilter = makeDifferntsLayers({
       layers: resourse.layers,
       namesLayer: this.allFiledFileds,
-      all: true
-    })
+      all: true,
+    });
 
     this.tilesetImages = resourse.tilesets.map((item, index) => {
       const nextFirstGid = resourse.tilesets[index + 1]?.firstgid || null;
@@ -55,7 +56,6 @@ class Background {
     });
   }
   drawFrontPlayer(c) {
-
     this.frontPlayerFielter.forEach((map) => {
       this.drawTileMap({ map, c });
     });
@@ -89,7 +89,12 @@ class Background {
             );
           } catch (error) {
             c.fillStyle = "#fff0ff60";
-            c.fillRect(col * this.TILE_SIZE, row * this.TILE_SIZE, this.TILE_SIZE, this.TILE_SIZE);
+            c.fillRect(
+              col * this.TILE_SIZE,
+              row * this.TILE_SIZE,
+              this.TILE_SIZE,
+              this.TILE_SIZE
+            );
           }
         }
       }
@@ -99,12 +104,13 @@ class Background {
 
 export default Background;
 
-
-function makeONELayer({ layers, name  }) {
-  return parse2D(
-    layers.find(layer => layer.name == name)
- );
+function makeONELayer({ layers, name }) {
+  return parse2D(layers.find((layer) => layer.name == name));
 }
-function makeDifferntsLayers({ layers, namesLayer , all = false }) {
-return layers.filter(layer => all ?  !namesLayer.includes(layer.name) : namesLayer.includes(layer.name)    ).map(layer => parse2D(layer));
+function makeDifferntsLayers({ layers, namesLayer, all = false }) {
+  return layers
+    .filter((layer) =>
+      all ? !namesLayer.includes(layer.name) : namesLayer.includes(layer.name)
+    )
+    .map((layer) => parse2D(layer));
 }
