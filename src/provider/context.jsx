@@ -72,7 +72,7 @@ const GameContext = createContext({});
 
 const metroidStup = {
   position: { x: 64, y: 134 },
-  img: "public/enemy/larvaMetroid.png",
+  img: "enemy/larvaMetroid.png",
   frameWidth: 120,
   frameHeight: 120,
   maxFrame: 4,
@@ -84,21 +84,21 @@ export const player = new Player({ position: { x: 164, y: 164 } });
 const allEntentys = [
   player,
 
-  // new Pokemon(bulbasaur),
-  // new Pokemon(charmander),
-  // new Pokemon(squirtle),
-  // new Pokemon(caterpie),
-  // new Pokemon(weedler),
-  // new Pokemon(pidgey),
-  // new Pokemon(ratata),
-  // new Pokemon(spearow),
-  // new Pokemon(ekans),
-  // new Pokemon(pikachu),
-  // new NPC(metroidStup),
-  // new PlayerOf({
-  //   position: { x: 164, y: 164 },
-  //   socketID: "no avile",
-  // }),
+  new Pokemon(bulbasaur),
+  new Pokemon(charmander),
+  new Pokemon(squirtle),
+  new Pokemon(caterpie),
+  new Pokemon(weedler),
+  new Pokemon(pidgey),
+  new Pokemon(ratata),
+  new Pokemon(spearow),
+  new Pokemon(ekans),
+  new Pokemon(pikachu),
+  new NPC(metroidStup),
+  new PlayerOf({
+    position: { x: 164, y: 164 },
+    socketID: "no avile",
+  }),
 ];
 
 const game = new MainGame({ isDev: true });

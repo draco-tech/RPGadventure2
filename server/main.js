@@ -81,12 +81,6 @@ app.get("/", (req, res) => {
 });
 app.post("/map", (req, res) => {
   const map = req.body;
-
-  console.log("map", map.collectionBlocks[0]);
-  prueba.collectionBlocks = map.collectionBlocks;
-  hasBlocks = true;
-
-  res.send("holdda");
 });
 
 app.listen(4000, () => {
