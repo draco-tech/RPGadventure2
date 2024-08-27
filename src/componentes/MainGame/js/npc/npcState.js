@@ -20,6 +20,10 @@ class NPC_STATE extends State {
   }
 
   enter() {
+    this.player.velocity = {
+      x: 0,
+      y: 0
+    }
     super.enter();
     this.timeInterval = Math.random() * 4000 + 500; // Cambia el tiempo de intervalo cada vez que entras en el estado
 
