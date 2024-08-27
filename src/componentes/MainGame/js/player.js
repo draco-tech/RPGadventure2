@@ -1,9 +1,10 @@
 import MainCharacter from "./Class";
-import { IDLE, RUNNING } from "./playerState";
+import { ATTACK, HITED, IDLE, playerStates, RUNNING } from "./playerState";
+import { changeState } from "./utils";
 
 class Player extends MainCharacter {
   constructor({ position, mundo }) {
-    super({ position, mundo, allstates: [IDLE, RUNNING] });
+    super({ position, mundo, allstates: [IDLE, RUNNING, ATTACK, HITED] });
     this.speed = 5;
     this.camera = {
       x: this.position.x,
@@ -21,6 +22,7 @@ class Player extends MainCharacter {
     this.isDev = false;
     this.socketID = null;
     this.socket = null;
+    this.enemiesKilles = 0;
   }
 
   update(c, deltaTime, entities, canvas) {
@@ -28,7 +30,7 @@ class Player extends MainCharacter {
     // this.input();
     this.updateCamera({ c, canvas });
 
-    if (this.socket != null) {
+    if (this.socket != null && this.socketID != null) {
       this.socket.emit("playerMove", {
         socketID: this.socketID,
         position: this.position,
@@ -153,6 +155,28 @@ class Player extends MainCharacter {
   }
   onCollicioBlockVerticalBottom(collisionBlock) {
     super.onCollicioBlockVerticalBottom(collisionBlock);
+  }
+  onCollisionForAttack(other) {
+    // super.onCollisionForAttack(other);
+    this.currentState.onCollisionForAttack(other);
+  }
+  reciveDamage() {
+    if (this.currentState.state !== playerStates.HITED) {
+      super.reciveDamage();
+      changeState({
+        character: this,
+        nextState: playerStates.HITED,
+        lastDercion: this.lastDercion,
+        speedY: 0,
+      });
+      if (!this.isDev) {
+        if (this.life > 0) {
+          this.life -= 1;
+        } else {
+          this.isDead = true;
+        }
+      }
+    }
   }
 }
 

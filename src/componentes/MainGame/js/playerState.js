@@ -1,11 +1,64 @@
-const states = {
+import { changeState } from "./utils";
+
+export const playerStates = {
   IDLE: 0,
   RUNNING: 1,
+  ATTACK: 2,
+  HITED: 3,
 };
 
 const acctionsSprite = {
   idle: 0,
   run: 1,
+  attack: 2,
+  hited: 3,
+};
+
+const keyActions = {
+  a: {
+    state: playerStates.ATTACK,
+    action: (player) => ({
+      character: player,
+      nextState: playerStates.ATTACK,
+      lastDercion: player.lastDercion,
+    }),
+  },
+  ArrowUp: {
+    state: playerStates.RUNNING,
+    action: (player) => ({
+      character: player,
+      nextState: playerStates.RUNNING,
+      lastDercion: player.lastDercion,
+      speedY: -player.speed,
+    }),
+  },
+  ArrowDown: {
+    state: playerStates.RUNNING,
+    action: (player) => ({
+      character: player,
+      nextState: playerStates.RUNNING,
+      lastDercion: player.lastDercion,
+      speedY: player.speed,
+    }),
+  },
+  ArrowLeft: {
+    state: playerStates.RUNNING,
+    action: (player) => ({
+      character: player,
+      nextState: playerStates.RUNNING,
+      lastDercion: "left",
+      speedX: -player.speed,
+    }),
+  },
+  ArrowRight: {
+    state: playerStates.RUNNING,
+    action: (player) => ({
+      character: player,
+      nextState: playerStates.RUNNING,
+      lastDercion: "right",
+      speedX: player.speed,
+    }),
+  },
 };
 
 export class State {
@@ -15,7 +68,36 @@ export class State {
   }
 
   enter() {}
+  handleKeyDown(event) {
+    const action = keyActions[event.key];
+    if (action) {
+      changeState(action.action(this.player));
+    }
+  }
+  handleKeyUp(event) {
+    this.player.velocity = { x: 0, y: 0 };
+    const action = keyActions[event.key];
+    if (action) {
+      const idleAction = {
+        character: this.player,
+        nextState: playerStates.IDLE,
+        lastDercion: this.player.lastDercion,
+      };
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        idleAction.lastDercion = event.key === "ArrowLeft" ? "left" : "right";
+      }
+
+      changeState(idleAction);
+    }
+  }
+
   exit() {}
+
+  onCollision(other) {}
+  releaseCollision(other) {}
+  onCollisionForAttack(other) {}
+  releaseCollisionForAttack(character) {}
 }
 
 export class IDLE extends State {
@@ -24,47 +106,14 @@ export class IDLE extends State {
   }
   enter() {
     this.player.frameY = acctionsSprite.idle;
+    this.player.velocity = { x: 0, y: 0 };
   }
   handleKeyDown(event) {
-    switch (event.key) {
-      case "ArrowUp":
-        changeState({
-          character: this.player,
-          nextState: states.RUNNING,
-          lastDercion: this.player.lastDercion,
-          speedY: -this.player.speed,
-        });
-
-        break;
-      case "ArrowDown":
-        changeState({
-          character: this.player,
-          nextState: states.RUNNING,
-          lastDercion: this.player.lastDercion,
-          speedY: this.player.speed,
-        });
-
-        break;
-      case "ArrowLeft":
-        changeState({
-          character: this.player,
-          nextState: states.RUNNING,
-          lastDercion: "left",
-          speedX: -this.player.speed,
-        });
-        break;
-      case "ArrowRight":
-        changeState({
-          character: this.player,
-          nextState: states.RUNNING,
-          lastDercion: "right",
-          speedX: this.player.speed,
-        });
-
-        break;
-    }
+    super.handleKeyDown(event);
   }
-  handleKeyUp(event, player) {}
+  handleKeyUp(event) {
+    super.handleKeyUp(event);
+  }
   exit(player) {}
 }
 
@@ -76,104 +125,75 @@ export class RUNNING extends State {
     this.player.frameY = acctionsSprite.run;
   }
   handleKeyDown(event) {
-   
-
-    switch (event.key) {
-      case "ArrowUp":
-        changeState({
-          character: this.player ,
-          nextState: states.RUNNING,
-          lastDercion: this.player.lastDercion,
-
-          speedY: -this.player.speed,
-        });
-
-        break;
-      case "ArrowDown":
-        changeState({
-          character:  this.player,
-          nextState: states.RUNNING,
-          lastDercion: this.player.lastDercion,
-          speedY: this.player.speed,
-        });
-        break;
-      case "ArrowLeft":
-        changeState({
-          character:  this.player,
-          nextState: states.RUNNING,
-          lastDercion: "left",
-          speedX: -this.player.speed,
-        });
-
-        break;
-      case "ArrowRight":
-        changeState({
-          character:  this.player,
-          nextState: states.RUNNING,
-          lastDercion: "right",
-
-          speedX: this.player.speed,
-        });
-
-        break;
-    }
+    super.handleKeyDown(event);
   }
   handleKeyUp(event) {
-    
-
-    this.player.velocity = {
-      x: 0,
-      y: 0,
-    };
-    switch (event.key) {
-      case "ArrowUp":
-      case "ArrowDown":
-        changeState({
-          character:  this.player,
-          nextState: states.IDLE,
-          lastDercion: this.player.lastDercion,
-
-        });
-        break;
-      case "ArrowLeft":
-        changeState({
-          character:  this.player,
-          nextState: states.IDLE,
-          lastDercion: "left",
-
-        });
-        break;
-      case "ArrowRight":
-        changeState({
-          character:  this.player,
-          nextState: states.IDLE,
-          lastDercion: "right",
-
-        });
-        break;
-    }
+    super.handleKeyUp(event);
   }
 
   exit(player) {}
 }
 
-export function changeState({
-  character,
-  nextState,
-  lastDercion,
-  speedX = character.velocity.x,
-  speedY = character.velocity.y,
-}) {
-  character.lastDercion = lastDercion;
-  character.velocity.x = speedX;
-  character.velocity.y = speedY;
-
-  if (nextState != character.indexState) {
-    character.indexState = nextState;
-
-    // make a change state
-    character.currentState.exit(this);
-    character.currentState = character.states[character.indexState];
-    character.currentState.enter(this);
+export class ATTACK extends State {
+  constructor(player) {
+    super("ATTACK", player);
   }
+  enter() {
+    this.player.frameY = acctionsSprite.attack;
+    this.player.attackRadio = 30;
+  }
+  handleKeyDown(event) {
+    super.handleKeyDown(event);
+  }
+  handleKeyUp(event) {
+    super.handleKeyUp(event);
+  }
+  exit(player) {
+    this.player.attackRadio = 15;
+  }
+  onCollisionForAttack(other) {
+    if (this.player.keyPress) {
+      other?.reciveDamage(this.player);
+      other.x += this.player.attackRadio + 5;
+    }
+  }
+}
+
+export class HITED extends State {
+  constructor(player) {
+    super("HITED", player);
+    this.timeout = null;
+  }
+  enter() {
+    super.enter();
+    this.player.velocity = { x: 0, y: 0 };
+    this.player.radius = 0;
+    this.player.attackRadio = 0;
+    this.player.frameY = acctionsSprite.hited;
+
+    this.player.incialFrameX = 2;
+
+    this.player.maxFrame = 9;
+
+    this.velocity = {
+      x: 0,
+      y: 0,
+    };
+
+    this.timeout = setTimeout(() => {
+      changeState({
+        character: this.player,
+        nextState: playerStates.IDLE,
+        lastDercion: this.player.lastDercion,
+        speedY: 0,
+      });
+    }, 1000);
+  }
+  handleKeyDown(event) {}
+  handleKeyUp(event) {}
+  exit(player) {
+    this.player.attackRadio = 15;
+    if (this.timeout) clearTimeout(this.timeout);
+  }
+  onCollisionForAttack(other) {}
 }

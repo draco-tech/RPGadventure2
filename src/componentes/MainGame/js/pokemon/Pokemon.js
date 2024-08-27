@@ -1,5 +1,5 @@
 import { NPC } from "../npc/NPC";
-import { changeState } from "../playerState";
+import { changeState } from "../utils";
 import { detectCollisionCircle } from "../utils";
 
 import { npcStates, PKM_CHASE, PKM_IDLE, PKM_PATROL } from "./pokemonStaes";

@@ -2,6 +2,7 @@ import {
   checkForCollision,
   createObjectsFrom2D,
   detectCollisionCircle,
+  detectCollisionCircleAttack,
 } from "./utils";
 
 class MainCharacter {
@@ -28,21 +29,33 @@ class MainCharacter {
     this.indexState = 0;
     this.currentState = this.states[this.indexState];
     this.lastDercion = "";
-    this.frameX = 0;
+    this.incialFrameX = 0;
+    this.frameX = this.incialFrameX;
     this.frameY = 0;
     this.flipToLeft = false;
     this.frameWidthLimit = 10;
     this.frameWidth = 32;
     this.frameHeight = 32;
-    this.maxFrame = 5;
+    this.maxFrame = 10;
     this.frameTime = 0;
     this.fps = 14;
     this.timeOfInterval = 1000;
     this.frameInterval = this.timeOfInterval / this.fps;
     this.collisionBlocks = [];
     this.radius = 15;
+    this.attackRadio = 15;
+    this.isDead = false;
+    this.damageMessage = null;
+    this.damageStartTime = null;
+    this.currentState.enter();
+
+    this.life = 5;
+    this.heartImage = new Image();
+    this.heartImage.src = "/hearts.png";
   }
+
   update(c, deltaTime, entities) {
+    this.showDamage(c);
     this.checkCanvasBoundaries();
     this.playerIsMoved();
     this.checkEntetiesCollisions(entities);
@@ -68,16 +81,32 @@ class MainCharacter {
     // Verificar colisiones con otras entidades
     entities?.forEach((other) => {
       if (other !== this) {
-        this.checkCollisionsBlocksHorizontal([other]);
-        this.checkCollisionsBlocksVertical([other]);
+        // this.checkCollisionsBlocksHorizontal([other]);
+        // this.checkCollisionsBlocksVertical([other]);
 
         if (other.tag !== this.tag && detectCollisionCircle(this, other)) {
           this.onCollision(other);
+          if (detectCollisionCircleAttack(this, other)) {
+            this.onCollisionForAttack(other);
+          } else {
+          }
         } else {
           this.releaseCollision(other);
+          this.releaseCollisionForAttack();
         }
       }
     });
+  }
+  paintLive(c, x, y) {
+    for (let i = 0; i < this.life; i++) {
+      c.drawImage(
+        this.heartImage,
+        x - 20 + i * 24 || this.position.x - 20 + i * 14,
+        y || this.position.y + 32,
+        x ? 20 : 12,
+        x ? 20 : 12
+      );
+    }
   }
   draw(c) {
     c.fillStyle = "#00000030";
@@ -103,7 +132,7 @@ class MainCharacter {
     if (this.frameTime > this.frameInterval) {
       this.frameTime = 0;
       if (this.frameX < this.maxFrame) this.frameX++;
-      else this.frameX = 0;
+      else this.frameX = this.incialFrameX;
     } else this.frameTime += deltaTime;
     c.save(); // Guardar el estado actual del contexto
     // Invertir el eje X si `flipToLeft` es verdadero this.flipToLeft ||
@@ -126,7 +155,51 @@ class MainCharacter {
 
     c.restore(); // Restaurar el estado del contexto
   }
-  turnFlipSprite() {}
+  reciveDamage() {
+    this.damageMessage = {
+      text: "hit",
+      startX: this.position.x + this.width / 2,
+      startY: this.position.y - 5,
+      alpha: 1, // Opacidad inicial
+      yOffset: 0, // Desplazamiento en Y
+    };
+
+    this.damageStartTime = performance.now(); // Marca de tiempo inicial
+  }
+
+  showDamage(c) {
+    // Si hay un mensaje de daño que mostrar
+    if (this.damageMessage) {
+      const elapsed = performance.now() - this.damageStartTime;
+      const duration = 1000; // Duración de la animación en milisegundos
+      const progress = elapsed / duration; // Progreso de la animación (0 a 1)
+
+      // Actualiza el desplazamiento y la opacidad basados en el progreso
+      if (progress < 1) {
+        this.damageMessage.yOffset = progress * 30; // El mensaje sube 30 píxeles
+        this.damageMessage.alpha = 1 - progress; // Desaparece gradualmente
+      } else {
+        // Finaliza la animación
+        this.damageMessage = null;
+      }
+
+      // Dibuja el mensaje con la opacidad y el desplazamiento actuales
+      if (this.damageMessage) {
+        c.save();
+        c.globalAlpha = this.damageMessage.alpha;
+        c.fillStyle = "red"; // Puedes cambiar el estilo del texto
+        c.font = "24px Arial"; // Ajusta el estilo de la fuente
+        c.fillText(
+          this.damageMessage.text,
+          this.damageMessage.startX,
+          this.damageMessage.startY - this.damageMessage.yOffset
+        );
+
+        c.restore();
+      }
+    }
+  }
+
   paintStates({ c, msj, x, y }) {
     c.font = "16px Arial"; // Tamaño y fuente del texto
     c.fillStyle = "blue"; // Color del texto
@@ -143,8 +216,7 @@ class MainCharacter {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
   }
-  onCollisionCanvasHorizontal() {}
-  onCollisionCanvasVertical() {}
+
   checkCanvasBoundaries() {
     if (this.mundo) {
       if (this.position.x >= this.mundo.w - this.width) {
@@ -216,7 +288,7 @@ class MainCharacter {
   }
   drawZone(c) {
     // Radio del círculo
-
+    //this.attackRadio
     // Dibujar el círculo
     c.beginPath();
     c.arc(
@@ -231,12 +303,28 @@ class MainCharacter {
     c.fill(); // Rellena el círculo
     c.strokeStyle = "black"; // Color del borde
     c.stroke(); // Dibuja el borde del círculo
+
+    c.beginPath();
+    c.arc(
+      this.position.x + this.width / 2,
+      this.position.y + this.height / 2,
+      this.attackRadio,
+      0,
+      Math.PI * 2,
+      false
+    ); // Dibuja el círculo completo
+    c.fillStyle = "#ff000060"; // Color del círculo
+    c.fill(); // Rellena el círculo
+    c.strokeStyle = "black"; // Color del borde
+    c.stroke(); // Dibuja el borde del círculo
   }
-  onCollision(other) {
-    // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
-    // Manejar la colisión de alguna manera
-  }
+  onCollision(other) {}
   releaseCollision(other) {}
+  onCollisionCanvasHorizontal() {}
+  onCollisionCanvasVertical() {}
+  turnFlipSprite() {}
+  onCollisionForAttack(other) {}
+  releaseCollisionForAttack() {}
 }
 
 export default MainCharacter;

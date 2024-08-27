@@ -34,10 +34,9 @@ const GameView = () => {
 
     canvas.width = window.outerWidth - 30;
     canvas.height = window.outerHeight - 50;
-    game.canvas = canvas;
 
     if (!canvas || !c) return;
-
+    game.canvas = canvas;
     const animate = (timeStamp) => {
       const deltaTime = timeStamp - lastTimeRef.current;
       lastTimeRef.current = timeStamp;
@@ -57,6 +56,19 @@ const GameView = () => {
       game.currentWorld.drawFrontPlayer(c);
 
       c.restore();
+      game.paintGUI({
+        c,
+        msj: "Live",
+        x: 64,
+        y: 30,
+      });
+      player.paintLive(c, 120, 14);
+      game.paintGUI({
+        c,
+        msj: "killed " + player.enemiesKilles,
+        x: 64,
+        y: 60,
+      });
 
       requestIdRef.current = window.requestAnimationFrame(animate);
     };
@@ -75,15 +87,6 @@ const GameView = () => {
 
   return (
     <section style={{ position: "relative" }}>
-      <p
-        onClick={() => {
-          console.log("holllaaa");
-          game.changeWorldIndex(2);
-        }}
-        className="w-screen bg-blue-500"
-      >
-        holllaaa
-      </p>
       <canvas ref={canvasRef} className="card-container" id="canvas" />
       <Joystick {...{ player }} />
     </section>

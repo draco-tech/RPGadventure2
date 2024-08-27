@@ -75,7 +75,7 @@ const metroidStup = {
   img: "enemy/larvaMetroid.png",
   frameWidth: 120,
   frameHeight: 120,
-  maxFrame: 4,
+  maxFrame: 5,
   tag: "metroid",
 };
 //ramdomePosition()
@@ -83,8 +83,8 @@ export const player = new Player({ position: { x: 164, y: 164 } });
 
 const allEntentys = [
   player,
- new NPC({ position: { x: 144, y: 164 } }),
- new NPC({ position:  ramdomePosition() }),
+
+  new NPC({ position: ramdomePosition() }),
   // new Pokemon(bulbasaur),
   // new Pokemon(charmander),
   // new Pokemon(squirtle),
@@ -114,19 +114,20 @@ const gameData = {
   collectionBlocks: game.currentWorld.collectionBlocks,
 };
 
-fetch("http://localhost:4000/map", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(gameData),
-})
-  .then((response) => response.text())
-  .then((data) => console.log(data))
-  .catch((error) => console.error("Error:", error));
+// fetch("http://localhost:4000/map", {
+//   method: "POST",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+//   body: JSON.stringify(gameData),
+// })
+//   .then((response) => response.text())
+//   .then((data) => console.log(data))
+//   .catch((error) => console.error("Error:", error));
 
 export const GameContextProvider = ({ children }) => {
   const [isDev, setIsDev] = useState(true);
+  const [isMultiplayer, setIsMultiplayer] = useState(false);
 
   const changeMundo = () => {};
 
@@ -139,10 +140,8 @@ export const GameContextProvider = ({ children }) => {
 
     player.speed = isDev ? 5 : 2;
   }, [isDev]);
-  if (true) {
+  if (isMultiplayer) {
     socket.on("start", (data) => {
-      console.log(player.socketID);
-
       player.socketID = socket.id;
       player.socket = socket;
       socket.emit("find", { socketID: socket.id, position: player.position });
@@ -202,7 +201,6 @@ export const GameContextProvider = ({ children }) => {
     });
 
     socket.once("addEntity", (allDataE) => {
-      console.log("entity", allDataE);
       allDataE.forEach((entity) => {
         // Verificar que el socketID no esté ya en game.entities
         const entityExists = game.entities.some(
@@ -227,7 +225,8 @@ export const GameContextProvider = ({ children }) => {
   }
 
   const value = {
-    hola: "jjja",
+    setIsMultiplayer,
+    isMultiplayer,
     player,
     game,
     setIsDev,

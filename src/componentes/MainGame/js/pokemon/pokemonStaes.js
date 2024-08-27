@@ -1,12 +1,11 @@
-import { changeState, State } from "../playerState";
+import { State } from "../playerState";
+import { changeState } from "../utils";
 
 export const npcStates = {
   PKM_IDLE: 0,
   PKM_PATROL: 1,
   PKM_CHACE: 2,
 };
-
-
 
 class NPC_STATE extends State {
   constructor(state, player) {
@@ -44,8 +43,6 @@ export class PKM_IDLE extends NPC_STATE {
         lastDercion: this.player.lastDercion,
         speedY: 0,
       });
-
-  
     }, this.timeInterval);
   }
   update() {}
@@ -59,9 +56,9 @@ export class PKM_PATROL extends NPC_STATE {
   enter() {
     super.enter();
     const { x, y } = this.getRandomVelocity(this.player.speed);
-  
+
     // this.player.flipSprite({x, y});
-    
+
     this.player.velocity.x = x;
     this.player.velocity.y = y;
 
@@ -69,29 +66,36 @@ export class PKM_PATROL extends NPC_STATE {
       changeState({
         character: this.player,
         nextState: npcStates.PKM_IDLE,
-
       });
     }, this.timeInterval);
   }
 
   update(deltaTime) {}
   getRandomVelocityDiagonal(speed) {
-    const randomValue = () => (Math.random() > 0.66 ? speed : (Math.random() < 0.5 ? -speed : 0));
-  
+    const randomValue = () =>
+      Math.random() > 0.66 ? speed : Math.random() < 0.5 ? -speed : 0;
+
     return {
       x: randomValue(),
       y: randomValue(),
     };
   }
 
-
   getRandomVelocity(speed) {
     // Genera una velocidad aleatoria para X
-    const randomX = Math.random() > 0.66 ? speed : (Math.random() < 0.5 ? -speed : 0);
-  
+    const randomX =
+      Math.random() > 0.66 ? speed : Math.random() < 0.5 ? -speed : 0;
+
     // Si la velocidad en X no es cero, entonces Y debe ser cero
-    const randomY = randomX !== 0 ? 0 : (Math.random() > 0.66 ? speed : (Math.random() < 0.5 ? -speed : 0));
-  
+    const randomY =
+      randomX !== 0
+        ? 0
+        : Math.random() > 0.66
+        ? speed
+        : Math.random() < 0.5
+        ? -speed
+        : 0;
+
     return {
       x: randomX,
       y: randomY,
@@ -100,11 +104,6 @@ export class PKM_PATROL extends NPC_STATE {
 
   exit() {}
 }
-
-
-
-
-
 
 export class PKM_CHASE extends NPC_STATE {
   constructor(player) {
@@ -128,11 +127,17 @@ export class PKM_CHASE extends NPC_STATE {
     // Calcular la dirección hacia el jugador
     const dx = enemy.position.x - this.player.position.x;
     const dy = enemy.position.y - this.player.position.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Normalizar la dirección y establecer la velocidad
-    this.player.velocity.x = (dx / distance) * this.player.speed;
-    this.player.velocity.y = (dy / distance) * this.player.speed;
+    // Decidir si moverse en el eje X o en el eje Y, priorizando la dirección con la mayor distancia
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Moverse en el eje X
+      this.player.velocity.x = dx > 0 ? this.player.speed : -this.player.speed;
+      this.player.velocity.y = 0; // No moverse en Y
+    } else {
+      // Moverse en el eje Y
+      this.player.velocity.y = dy > 0 ? this.player.speed : -this.player.speed;
+      this.player.velocity.x = 0; // No moverse en X
+    }
   }
   exit() {
     super.exit();

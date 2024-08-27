@@ -25,7 +25,6 @@ class Npc {
   checkCollisionsBlocksHorizontal(blockes) {
     for (let i = 0; i < blockes.length; i++) {
       const collisionBlock = blockes[i];
-      console.log("collisionBlock", collisionBlock);
 
       if (checkForCollision({ object1: this, object2: collisionBlock })) {
         if (this.velocity.x > 0) {
@@ -91,8 +90,6 @@ class Npc {
 }
 
 function checkForCollision({ object1, object2 }) {
-  console.log("object1", object1);
-
   return (
     object1.position.y + object1.height > object2.position.y &&
     object1.position.y < object2.position.y + object2.height &&

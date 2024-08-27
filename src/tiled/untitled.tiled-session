@@ -61,13 +61,13 @@
     ],
     "project": "untitled.tiled-project",
     "recentFiles": [
+        "Shadow.tsx",
+        "ShadowPlant.tsx",
+        "ColitionMark.tsx",
+        "Ground.tsx",
         "Grass.tsx",
         "Wall.tsx",
         "Plant.tsx",
-        "Ground.tsx",
-        "ColitionMark.tsx",
-        "ShadowPlant.tsx",
-        "Shadow.tsx",
         "mapaGia.tmx"
     ],
     "tileset.lastUsedFormat": "tsx"

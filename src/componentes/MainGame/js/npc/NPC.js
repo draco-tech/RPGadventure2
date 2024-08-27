@@ -1,6 +1,14 @@
 import MainCharacter from "../Class";
-import { changeState } from "../playerState";
-import { NPC_CHASE, NPC_IDLE, NPC_PATROL, npcStates } from "./npcState";
+import { changeState } from "../utils";
+
+import {
+  NPC_ATTACK,
+  NPC_CHASE,
+  NPC_HITED,
+  NPC_IDLE,
+  NPC_PATROL,
+  npcStates,
+} from "./npcState";
 
 export class NPC extends MainCharacter {
   constructor({
@@ -8,8 +16,8 @@ export class NPC extends MainCharacter {
     img = "public/blueNinja/ninjaBluAll.png",
     frameWidth = 32,
     frameHeight = 32,
-    maxFrame = 5,
-    allstates = [NPC_IDLE, NPC_PATROL, NPC_CHASE],
+    maxFrame = 10,
+    allstates = [NPC_IDLE, NPC_PATROL, NPC_CHASE, NPC_ATTACK, NPC_HITED],
     tag,
   }) {
     super({
@@ -24,9 +32,9 @@ export class NPC extends MainCharacter {
     this.maxFrame = maxFrame;
 
     this.fps = 2;
-    this.radius = 50;
+    this.radius = 200;
     this.speed = 2;
-    this.currentState.enter();
+
     this.isDev = false;
   }
 
@@ -48,6 +56,7 @@ export class NPC extends MainCharacter {
         y: this.position.y - 20,
       });
       this.drawZone(c);
+      this.paintLive(c);
     }
   }
   onCollisionCanvasHorizontal() {
@@ -84,17 +93,32 @@ export class NPC extends MainCharacter {
 
   onCollision(other) {
     // if (this.isDev) {console.log(`Colisión entre ${this.tag} y ${other.tag}`)}
-    // Manejar la colisión de alguna manera
-    if (this.currentState.state !== npcStates.NPC_CHACE) {
-      changeState({
-        character: this,
-        nextState: npcStates.NPC_CHACE,
-        lastDercion: this.lastDercion,
-        frameY: this.frameY,
-        speedY: 0,
-      });
-      this.currentState?.chasePlayer(other);
-    }
+
+    this.currentState.onCollision(other);
   }
   releaseCollision(other) {}
+  onCollisionForAttack(other) {
+    this.currentState.onCollisionForAttack(other);
+  }
+  releaseCollisionForAttack(character) {
+    this.currentState.releaseCollisionForAttack(character);
+  }
+  reciveDamage(player) {
+    if (this.currentState.state !== npcStates.NPC_HITED) {
+      super.reciveDamage();
+      changeState({
+        character: this,
+        nextState: npcStates.NPC_HITED,
+        lastDercion: this.lastDercion,
+        speedY: 0,
+      });
+      if (this.life > 0) {
+        this.life -= 1;
+        if (this.life <= 0) {
+          this.isDead = true;
+          player.enemiesKilles++;
+        }
+      }
+    }
+  }
 }

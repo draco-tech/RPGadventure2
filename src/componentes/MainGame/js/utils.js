@@ -1,23 +1,46 @@
-import { CollisionBlockFull ,CollisionBlockLeft , CollisionBlockRight,CollisionBlockTop ,CollisionBlockBottom, CollisionBlockCenter , CollisionBlockSqureLeftBottom , CollisionBlockSqureLeftTop, CollisionBlockSqureRightBottom, CollisionBlockSqureRightTop } from "./CollisionBlock"
-const blockSize = 32 
+import {
+  CollisionBlockFull,
+  CollisionBlockLeft,
+  CollisionBlockRight,
+  CollisionBlockTop,
+  CollisionBlockBottom,
+  CollisionBlockCenter,
+  CollisionBlockSqureLeftBottom,
+  CollisionBlockSqureLeftTop,
+  CollisionBlockSqureRightBottom,
+  CollisionBlockSqureRightTop,
+} from "./CollisionBlock";
+const blockSize = 32;
 export const parse2D = function (array) {
-  const rows = []
+  const rows = [];
   for (let i = 0; i < array.data.length; i += array.width) {
-    rows.push(array.data.slice(i, i + array.width))
+    rows.push(array.data.slice(i, i + array.width));
   }
-  return rows
-}
+  return rows;
+};
 const blockElements = {
-  collisionBlockFull:             { id: 577, classElement: CollisionBlockFull },
-  collisionBlockTop:              { id: 578, classElement: CollisionBlockTop },
-  collisionBlockBottom:           { id: 579, classElement: CollisionBlockBottom },
-  collisionBlockLeft:             { id: 580, classElement: CollisionBlockLeft },
-  collisionBlockRight:            { id: 581, classElement: CollisionBlockRight },
-  collisionBlockCenter:           { id: 582, classElement: CollisionBlockCenter },
-  collisionBlockSqureLeftBottom:  { id: 583, classElement: CollisionBlockSqureLeftBottom },
-  collisionBlockSqureRightBottom: { id: 584, classElement: CollisionBlockSqureRightBottom },
-  collisionBlockSqureLeftTop:     { id: 585, classElement: CollisionBlockSqureLeftTop },
-  collisionBlockSqureRightTop:    { id: 586, classElement: CollisionBlockSqureRightTop }
+  collisionBlockFull: { id: 577, classElement: CollisionBlockFull },
+  collisionBlockTop: { id: 578, classElement: CollisionBlockTop },
+  collisionBlockBottom: { id: 579, classElement: CollisionBlockBottom },
+  collisionBlockLeft: { id: 580, classElement: CollisionBlockLeft },
+  collisionBlockRight: { id: 581, classElement: CollisionBlockRight },
+  collisionBlockCenter: { id: 582, classElement: CollisionBlockCenter },
+  collisionBlockSqureLeftBottom: {
+    id: 583,
+    classElement: CollisionBlockSqureLeftBottom,
+  },
+  collisionBlockSqureRightBottom: {
+    id: 584,
+    classElement: CollisionBlockSqureRightBottom,
+  },
+  collisionBlockSqureLeftTop: {
+    id: 585,
+    classElement: CollisionBlockSqureLeftTop,
+  },
+  collisionBlockSqureRightTop: {
+    id: 586,
+    classElement: CollisionBlockSqureRightTop,
+  },
 };
 
 export const createObjectsFrom2D = function (array) {
@@ -44,7 +67,6 @@ export const createObjectsFrom2D = function (array) {
   return objects;
 };
 
-
 export function checkForCollision({ object1, object2 }) {
   return (
     object1.position.y + object1.height > object2.position.y &&
@@ -54,9 +76,7 @@ export function checkForCollision({ object1, object2 }) {
   );
 }
 
-
-
-export  function detectCollisionCircle(circle1, circle2) {
+export function detectCollisionCircle(circle1, circle2) {
   const dx = circle2.position.x - circle1.position.x;
   const dy = circle2.position.y - circle1.position.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -64,4 +84,31 @@ export  function detectCollisionCircle(circle1, circle2) {
   return distance <= circle1.radius + circle2.radius;
 }
 
+export function detectCollisionCircleAttack(circle1, circle2) {
+  const dx = circle2.position.x - circle1.position.x;
+  const dy = circle2.position.y - circle1.position.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
 
+  return distance <= circle1.attackRadio + circle2.attackRadio;
+}
+
+export function changeState({
+  character,
+  nextState,
+  lastDercion,
+  speedX = character.velocity.x,
+  speedY = character.velocity.y,
+}) {
+  character.lastDercion = lastDercion;
+  character.velocity.x = speedX;
+  character.velocity.y = speedY;
+
+  if (nextState != character.indexState) {
+    character.indexState = nextState;
+
+    // make a change state
+    character.currentState.exit(this);
+    character.currentState = character.states[character.indexState];
+    character.currentState.enter(this);
+  }
+}
