@@ -5,6 +5,7 @@ export const playerStates = {
   RUNNING: 1,
   ATTACK: 2,
   HITED: 3,
+  DASH:4
 };
 
 const acctionsSprite = {
@@ -12,6 +13,7 @@ const acctionsSprite = {
   run: 1,
   attack: 2,
   hited: 3,
+  dash:4
 };
 
 const keyActions = {
@@ -20,6 +22,14 @@ const keyActions = {
     action: (player) => ({
       character: player,
       nextState: playerStates.ATTACK,
+      lastDercion: player.lastDercion,
+    }),
+  },
+  s: {
+    state: playerStates.DASH,
+    action: (player) => ({
+      character: player,
+      nextState: playerStates.DASH,
       lastDercion: player.lastDercion,
     }),
   },
@@ -65,6 +75,7 @@ export class State {
   constructor(state, player) {
     this.state = state;
     this.player = player;
+    this.timeout = null
   }
 
   enter() {}
@@ -92,7 +103,9 @@ export class State {
     }
   }
 
-  exit() {}
+  exit() {
+    if (this.timeout) clearTimeout(this.timeout);
+  }
 
   onCollision(other) {}
   releaseCollision(other) {}
@@ -191,9 +204,46 @@ export class HITED extends State {
   }
   handleKeyDown(event) {}
   handleKeyUp(event) {}
-  exit(player) {
+  exit() {
+    super.exit()
     this.player.attackRadio = 15;
-    if (this.timeout) clearTimeout(this.timeout);
+   
   }
   onCollisionForAttack(other) {}
+}
+
+export class DASH extends State {
+  constructor(player) {
+    super("DASH", player);
+  }
+  enter() {
+    this.player.frameY = acctionsSprite.dash;
+    this.player.speed = 45
+    this.player.attackRadio = 30;
+    this.timeout = setTimeout(() => {
+      changeState({
+        character: this.player,
+        nextState: playerStates.IDLE,
+        lastDercion: this.player.lastDercion,
+        speedY: 0,
+      });
+    }, 1000);
+  }
+  handleKeyDown(event) {
+    // super.handleKeyDown(event);
+  }
+  handleKeyUp(event) {
+    // super.handleKeyUp(event);
+  }
+  exit() {
+    super.exit()
+    this.player.attackRadio = 15;
+    this.player.speed = 2
+  }
+  onCollisionForAttack(other) {
+    if (this.player.keyPress) {
+      other?.reciveDamage(this.player);
+      other.x += this.player.attackRadio + 5;
+    }
+  }
 }

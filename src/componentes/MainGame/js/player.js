@@ -1,10 +1,10 @@
 import MainCharacter from "./Class";
-import { ATTACK, HITED, IDLE, playerStates, RUNNING } from "./playerState";
+import { ATTACK, DASH, HITED, IDLE, playerStates, RUNNING } from "./playerState";
 import { changeState } from "./utils";
 
 class Player extends MainCharacter {
   constructor({ position, mundo }) {
-    super({ position, mundo, allstates: [IDLE, RUNNING, ATTACK, HITED] });
+    super({ position, mundo, allstates: [ IDLE, RUNNING, ATTACK, HITED ,DASH] });
     this.speed = 5;
     this.camera = {
       x: this.position.x,

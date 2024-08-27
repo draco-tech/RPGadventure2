@@ -127,7 +127,7 @@ const gameData = {
 
 export const GameContextProvider = ({ children }) => {
   const [isDev, setIsDev] = useState(true);
-  const [isMultiplayer, setIsMultiplayer] = useState(false);
+  const [isMultiplayer, setIsMultiplayer] = useState(true);
 
   const changeMundo = () => {};
 
