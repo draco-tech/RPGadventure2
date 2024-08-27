@@ -83,22 +83,23 @@ export const player = new Player({ position: { x: 164, y: 164 } });
 
 const allEntentys = [
   player,
-
-  new Pokemon(bulbasaur),
-  new Pokemon(charmander),
-  new Pokemon(squirtle),
-  new Pokemon(caterpie),
-  new Pokemon(weedler),
-  new Pokemon(pidgey),
-  new Pokemon(ratata),
-  new Pokemon(spearow),
-  new Pokemon(ekans),
-  new Pokemon(pikachu),
-  new NPC(metroidStup),
-  new PlayerOf({
-    position: { x: 164, y: 164 },
-    socketID: "no avile",
-  }),
+ new NPC({ position: { x: 144, y: 164 } }),
+ new NPC({ position:  ramdomePosition() }),
+  // new Pokemon(bulbasaur),
+  // new Pokemon(charmander),
+  // new Pokemon(squirtle),
+  // new Pokemon(caterpie),
+  // new Pokemon(weedler),
+  // new Pokemon(pidgey),
+  // new Pokemon(ratata),
+  // new Pokemon(spearow),
+  // new Pokemon(ekans),
+  // new Pokemon(pikachu),
+  // new NPC(metroidStup),
+  // new PlayerOf({
+  //   position: { x: 164, y: 164 },
+  //   socketID: "no avile",
+  // }),
 ];
 
 const game = new MainGame({ isDev: true });

@@ -88,7 +88,7 @@ class Background {
               this.TILE_SIZE // Posición en el canvas
             );
           } catch (error) {
-            c.fillStyle = "#fff0ff60";
+            c.fillStyle = "#fff0ff30";
             c.fillRect(
               col * this.TILE_SIZE,
               row * this.TILE_SIZE,
